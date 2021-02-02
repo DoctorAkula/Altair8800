@@ -22,6 +22,12 @@ void panelLogic(FrontPanel *panel, i8080 *cpu)
 {
 	static FrontPanel oldpanel = {0,0,0,0,0,0,false};
 	if(panel->power){
+		if(!oldpanel.power){
+			panel->addr = rand();
+			int size = 1 << (cpu->RAM.addrSize - 2);
+			for(int i = 0; i < size; i++)
+				((int*)cpu->RAM.RAM)[i] = rand();
+		}
 		/*Control switch stuff*/
 		if(checkUpChange(panel, &oldpanel, Protect))
 			setProt(&cpu->RAM, panel->addr);

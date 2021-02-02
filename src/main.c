@@ -115,6 +115,12 @@ void SoundAndEventHandling(FrontPanel *panel, Sound *sounds)
 int main(int argc, char *argv[])
 {
 	/*Init start*/
+	{
+		//Silly but good enough
+		void *seed = malloc(0x100);
+		srand((long long)seed);
+		free(seed);
+	}
 	InitWindow(width, height, "Altair Front");
 	InitAudioDevice();
 	if(!IsAudioDeviceReady())
@@ -124,7 +130,7 @@ int main(int argc, char *argv[])
 	Image images[ilength];
 	Texture2D textures[ilength];
 	FrontPanel panel = {0,0,0,0,0,0,false};
-	i8080 cpu = {A: 0,F: 0,BC: 0,DE: 0,HL: 0,SP: 0,PC: 0,RAM: newDRAM(16, 8)};
+	i8080 cpu = {A: 0,F: 0,BC: 0,DE: 0,HL: 0,SP: 0,PC: 0,RAM: newDRAM(16, 8), tstates: 0};
 	for(int i = 0; i < slength; i++)
 		sounds[i] = LoadSound(soundfiles[i]);
 	for(int i = 0; i < ilength; i++)

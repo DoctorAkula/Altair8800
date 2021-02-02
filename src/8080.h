@@ -37,5 +37,9 @@ typedef struct i8080{
 	uint16_t SP;
 	uint16_t PC;
 	dedicatedRAM RAM;
+	uint64_t tstates;
 }i8080;
+
+void singleStep(i8080 *cpu);
+void runCPU(i8080 *cpu, int freq);
 #endif /*_i8080_*/
