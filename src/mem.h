@@ -15,4 +15,6 @@ void clearProt(dedicatedRAM *RAM, uint16_t addr);
 uint8_t readProt(dedicatedRAM *RAM, uint16_t addr);
 uint8_t readRAM(dedicatedRAM *RAM, uint16_t addr);
 void writeRAM(dedicatedRAM *RAM, uint16_t addr, uint8_t data);
+uint16_t readWRAM(dedicatedRAM *RAM, uint16_t addr);
+void writeWRAM(dedicatedRAM *RAM, uint16_t addr, uint16_t data);
 #endif /*_mem_*/

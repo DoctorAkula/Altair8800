@@ -3,11 +3,12 @@
 #include"mem.h"
 
 /*Flag masks*/
-#define SignFlag 0x80
+#define SignFlag 0x80 /*Negative while 1*/
 #define ZeroFlag 0x40
-#define AcryFlag 0x10
-#define PariFlag 0x04
+#define AcryFlag 0x10 /*Carry from bit 3 to bit 4*/
+#define PariFlag 0x04 /*Even while 1*/
 #define CaryFlag 0x01
+
 
 typedef struct i8080{
 	union{
@@ -38,8 +39,9 @@ typedef struct i8080{
 	uint16_t PC;
 	dedicatedRAM RAM;
 	uint64_t tstates;
+	uint8_t halt;
 }i8080;
 
-void singleStep(i8080 *cpu);
+int singleStep(i8080 *cpu);
 void runCPU(i8080 *cpu, int freq);
 #endif /*_i8080_*/

@@ -53,3 +53,19 @@ void writeRAM(dedicatedRAM *RAM, uint16_t addr, uint8_t data)
 	if(!RAM->prot[protAddr])
 		RAM->RAM[addr] = data;
 }
+
+uint16_t readWRAM(dedicatedRAM *RAM, uint16_t addr)
+{
+	int mask = (1 << RAM->addrSize) - 1;
+	addr &= mask;
+	return *(uint16_t*)(RAM->RAM + addr);
+}
+
+void writeWRAM(dedicatedRAM *RAM, uint16_t addr, uint16_t data)
+{
+	int mask = (1 << RAM->addrSize) - 1;
+	addr &= mask;
+	uint16_t protAddr = addr >> RAM->PageSize;
+	if(!RAM->prot[protAddr])
+		*(uint16_t*)(RAM->RAM + addr) = data;
+}

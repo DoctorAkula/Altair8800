@@ -46,6 +46,17 @@ void panelLogic(FrontPanel *panel, i8080 *cpu)
 			panel->addr++;
 			writeRAM(&cpu->RAM, panel->addr, panel->dataswitches & 0xFF);
 		}
+		if(checkUpChange(panel, &oldpanel, Step)){
+			singleStep(cpu);
+			panel->addr = cpu->PC;
+		}
+		//if(checkDownChange(panel, &oldpanel, Step));
+		if(checkUpChange(panel, &oldpanel, ResetClr)){
+			cpu->PC = 0;
+			panel->addr = 0;
+		}
+		//if(checkDownChange(panel, &oldpanel, ResetClr));
+		
 		panel->data = readRAM(&cpu->RAM, panel->addr);
 
 		/*Status light stuff*/
