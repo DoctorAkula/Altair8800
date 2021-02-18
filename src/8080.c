@@ -1,14 +1,21 @@
 #include"8080.h"
+#include"flags.h"
 
 /*Returns amount of tstates*/
 /*helpful macros*/
-#define PUSH(ITEM) writeWRAM(&cpu->RAM, cpu->SP += 2, ITEM)
+#define PUSH(ITEM) writeWRAM(&cpu->RAM, cpu->SP -= 2, ITEM)
 #define POP 	readWRAM(&cpu->RAM, cpu->SP);\
-		cpu->SP -= 2
+		cpu->SP += 2
 #define JMP	temp = readWRAM(&cpu->RAM, cpu->PC);\
 		cpu->PC = temp
-#define RST(I)  PUSH(cpu->PC);\
+#define RST(I)  PUSH(cpu->PC + 2);\
 		cpu->PC = I * 8
+#define INR(R)	cpu->R++;\
+		cpu->F &= 0b00000011;\
+		cpu->F |= INR_FLAGS[cpu->R]
+#define DCR(R)	cpu->R--;\
+		cpu->F &= 0b00000011;\
+		cpu->F |= DCR_FLAGS[cpu->R]
 
 int singleStep(i8080 *cpu)
 {
@@ -38,12 +45,14 @@ int singleStep(i8080 *cpu)
 		clks = 5;
 		cpu->tstates += clks;
 		return clks;
-		case 0x4:	/*TODO*/
-		clks = 4;
+		case 0x4:	/*INR B*/
+		INR(B);
+		clks = 5;
 		cpu->tstates += clks;
 		return clks;
-		case 0x5:	/*TODO*/
-		clks = 4;
+		case 0x5:	/*DCR B*/
+		DCR(B);
+		clks = 5;
 		cpu->tstates += clks;
 		return clks;
 		case 0x6:	/*MVI B, D8*/
@@ -74,12 +83,14 @@ int singleStep(i8080 *cpu)
 		clks = 5;
 		cpu->tstates += clks;
 		return clks;
-		case 0xc:	/*TODO*/
-		clks = 4;
+		case 0xc:	/*INR C*/
+		INR(C);
+		clks = 5;
 		cpu->tstates += clks;
 		return clks;
-		case 0xd:	/*TODO*/
-		clks = 4;
+		case 0xd:	/*DCR C*/
+		DCR(C);
+		clks = 5;
 		cpu->tstates += clks;
 		return clks;
 		case 0xe:	/*MVI C, D8*/
@@ -110,12 +121,14 @@ int singleStep(i8080 *cpu)
 		clks = 5;
 		cpu->tstates += clks;
 		return clks;
-		case 0x14:	/*TODO*/
-		clks = 4;
+		case 0x14:	/*INR D*/
+		INR(D);
+		clks = 5;
 		cpu->tstates += clks;
 		return clks;
-		case 0x15:	/*TODO*/
-		clks = 4;
+		case 0x15:	/*DCR D*/
+		DCR(D);
+		clks = 5;
 		cpu->tstates += clks;
 		return clks;
 		case 0x16:	/*MVI D, D8*/
@@ -146,12 +159,14 @@ int singleStep(i8080 *cpu)
 		clks = 5;
 		cpu->tstates += clks;
 		return clks;
-		case 0x1c:	/*TODO*/
-		clks = 4;
+		case 0x1c:	/*INR E*/
+		INR(E);
+		clks = 5;
 		cpu->tstates += clks;
 		return clks;
-		case 0x1d:	/*TODO*/
-		clks = 4;
+		case 0x1d:	/*DCR E*/
+		DCR(E);
+		clks = 5;
 		cpu->tstates += clks;
 		return clks;
 		case 0x1e:	/*MVI E, D8*/
@@ -186,12 +201,14 @@ int singleStep(i8080 *cpu)
 		clks = 5;
 		cpu->tstates += clks;
 		return clks;
-		case 0x24:	/*TODO*/
-		clks = 4;
+		case 0x24:	/*INR H*/
+		INR(H);
+		clks = 5;
 		cpu->tstates += clks;
 		return clks;
-		case 0x25:	/*TODO*/
-		clks = 4;
+		case 0x25:	/*DCR H*/
+		DCR(H);
+		clks = 5;
 		cpu->tstates += clks;
 		return clks;
 		case 0x26:	/*MVI H, D8*/
@@ -224,12 +241,14 @@ int singleStep(i8080 *cpu)
 		clks = 5;
 		cpu->tstates += clks;
 		return clks;
-		case 0x2c:	/*TODO*/
-		clks = 4;
+		case 0x2c:	/*INR L*/
+		INR(L);
+		clks = 5;
 		cpu->tstates += clks;
 		return clks;
-		case 0x2d:	/*TODO*/
-		clks = 4;
+		case 0x2d:	/*DCR L*/
+		DCR(L);
+		clks = 5;
 		cpu->tstates += clks;
 		return clks;
 		case 0x2e:	/*MVI L, D8*/
@@ -264,12 +283,24 @@ int singleStep(i8080 *cpu)
 		clks = 5;
 		cpu->tstates += clks;
 		return clks;
-		case 0x34:	/*TODO*/
-		clks = 4;
+		case 0x34:	/*INR M*/
+		temp = readRAM(&cpu->RAM, cpu->HL);
+		temp++;
+		temp &= 0xFF;
+		cpu->F &= 0b00000011;
+		cpu->F |= INR_FLAGS[temp];
+		writeRAM(&cpu->RAM, cpu->HL, temp);
+		clks = 10;
 		cpu->tstates += clks;
 		return clks;
-		case 0x35:	/*TODO*/
-		clks = 4;
+		case 0x35:	/*DCR M*/
+		temp = readRAM(&cpu->RAM, cpu->HL);
+		temp--;
+		temp &= 0xFF;
+		cpu->F &= 0b00000011;
+		cpu->F |= DCR_FLAGS[temp];
+		writeRAM(&cpu->RAM, cpu->HL, temp);
+		clks = 10;
 		cpu->tstates += clks;
 		return clks;
 		case 0x36:	/*MVI M, D8*/
@@ -301,12 +332,14 @@ int singleStep(i8080 *cpu)
 		clks = 5;
 		cpu->tstates += clks;
 		return clks;
-		case 0x3c:	/*TODO*/
-		clks = 4;
+		case 0x3c:	/*INR A*/
+		INR(A);
+		clks = 5;
 		cpu->tstates += clks;
 		return clks;
-		case 0x3d:	/*TODO*/
-		clks = 4;
+		case 0x3d:	/*DCR A*/
+		DCR(A);
+		clks = 5;
 		cpu->tstates += clks;
 		return clks;
 		case 0x3e:	/*MVI A, D8*/
@@ -923,7 +956,7 @@ int singleStep(i8080 *cpu)
 		case 0xc4:	/*CNZ A16*/
 		if(cpu->F & ZeroFlag) clks = 11;
 		else{
-			PUSH(cpu->PC);
+			PUSH(cpu->PC + 2);
 			JMP;
 			clks = 17;
 		}
@@ -971,14 +1004,14 @@ int singleStep(i8080 *cpu)
 		case 0xcc:	/*CZ A16*/
 		if(!(cpu->F & ZeroFlag)) clks = 11;
 		else{
-			PUSH(cpu->PC);
+			PUSH(cpu->PC + 2);
 			JMP;
 			clks = 17;
 		}
 		cpu->tstates += clks;
 		return clks;
 		case 0xcd:	/*CALL A16*/
-		PUSH(cpu->PC);
+		PUSH(cpu->PC + 2);
 		JMP;
 		clks = 17;
 		cpu->tstates += clks;
@@ -1019,7 +1052,7 @@ int singleStep(i8080 *cpu)
 		case 0xd4:	/*CNC A16*/
 		if(cpu->F & CaryFlag) clks = 11;
 		else{
-			PUSH(cpu->PC);
+			PUSH(cpu->PC + 2);
 			JMP;
 			clks = 17;
 		}
@@ -1066,14 +1099,14 @@ int singleStep(i8080 *cpu)
 		case 0xdc:	/*CC*/
 		if(!(cpu->F & CaryFlag)) clks = 11;
 		else{
-			PUSH(cpu->PC);
+			PUSH(cpu->PC + 2);
 			JMP;
 			clks = 17;
 		}
 		cpu->tstates += clks;
 		return clks;
 		case 0xdd:	/*-CALL*/
-		PUSH(cpu->PC);
+		PUSH(cpu->PC + 2);
 		JMP;
 		clks = 17;
 		cpu->tstates += clks;
@@ -1115,7 +1148,7 @@ int singleStep(i8080 *cpu)
 		case 0xe4:	/*CPO A16*/
 		if(cpu->F & PariFlag) clks = 11;
 		else{
-			PUSH(cpu->PC);
+			PUSH(cpu->PC + 2);
 			JMP;
 			clks = 17;
 		}
@@ -1165,14 +1198,14 @@ int singleStep(i8080 *cpu)
 		case 0xec:	/*CPE A16*/
 		if(!(cpu->F & PariFlag)) clks = 11;
 		else{
-			PUSH(cpu->PC);
+			PUSH(cpu->PC + 2);
 			JMP;
 			clks = 17;
 		}
 		cpu->tstates += clks;
 		return clks;
 		case 0xed:	/*-CALL*/
-		PUSH(cpu->PC);
+		PUSH(cpu->PC + 2);
 		JMP;
 		clks = 17;
 		cpu->tstates += clks;
@@ -1211,7 +1244,7 @@ int singleStep(i8080 *cpu)
 		case 0xf4:	/*CP A16*/
 		if(cpu->F & SignFlag) clks = 11;
 		else{
-			PUSH(cpu->PC);
+			PUSH(cpu->PC + 2);
 			JMP;
 			clks = 17;
 		}
@@ -1257,14 +1290,14 @@ int singleStep(i8080 *cpu)
 		case 0xfc:	/*CM A16*/
 		if(!(cpu->F & SignFlag)) clks = 11;
 		else{
-			PUSH(cpu->PC);
+			PUSH(cpu->PC + 2);
 			JMP;
 			clks = 17;
 		}
 		cpu->tstates += clks;
 		return clks;
 		case 0xfd:	/*-CALL*/
-		PUSH(cpu->PC);
+		PUSH(cpu->PC + 2);
 		JMP;
 		clks = 17;
 		cpu->tstates += clks;
