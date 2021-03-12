@@ -16,6 +16,9 @@
 #define DCR(R)	cpu->R--;\
 		cpu->F &= 0b00000011;\
 		cpu->F |= DCR_FLAGS[cpu->R]
+#define DAD(R)	temp = cpu->HL + cpu->R;\
+		cpu->F = (temp >> 16) | (cpu->F &~1);\
+		cpu->HL = temp;
 
 int singleStep(i8080 *cpu)
 {
@@ -61,7 +64,9 @@ int singleStep(i8080 *cpu)
 		clks = 7;
 		cpu->tstates += clks;
 		return clks;
-		case 0x7:	/*TODO*/
+		case 0x7:	/*RLC*/
+		cpu->F = (cpu->A >> 7) | (cpu->F &~1);
+		cpu->A = (cpu->A << 1) | (cpu->F & 1);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
@@ -69,8 +74,9 @@ int singleStep(i8080 *cpu)
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x9:	/*TODO*/
-		clks = 4;
+		case 0x9:	/*DAD B*/
+		DAD(BC);
+		clks = 10;
 		cpu->tstates += clks;
 		return clks;
 		case 0xa:	/*LDAX B*/
@@ -97,7 +103,9 @@ int singleStep(i8080 *cpu)
 		clks = 7;
 		cpu->tstates += clks;
 		return clks;
-		case 0xf:	/*TODO*/
+		case 0xf:	/*RRC*/
+		cpu->F = (cpu->A & 1) | (cpu->F &~1);
+		cpu->A = (cpu->A >> 1) | ((cpu->F & 1) << 7);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
@@ -137,7 +145,10 @@ int singleStep(i8080 *cpu)
 		clks = 7;
 		cpu->tstates += clks;
 		return clks;
-		case 0x17:	/*TODO*/
+		case 0x17:	/*RAL*/
+		temp = cpu->F;
+		cpu->F = (cpu->A >> 7) | (cpu->F &~1);
+		cpu->A = (cpu->A << 1) | (temp & 1);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
@@ -145,8 +156,9 @@ int singleStep(i8080 *cpu)
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x19:	/*TODO*/
-		clks = 4;
+		case 0x19:	/*DAD D*/
+		DAD(DE);
+		clks = 10;
 		cpu->tstates += clks;
 		return clks;
 		case 0x1a:	/*LDAX D*/
@@ -175,7 +187,10 @@ int singleStep(i8080 *cpu)
 		clks = 7;
 		cpu->tstates += clks;
 		return clks;
-		case 0x1f:	/*TODO*/
+		case 0x1f:	/*RAR*/
+		temp = cpu->F;
+		cpu->F = (cpu->A & 1) | (cpu->F &~1);
+		cpu->A = (cpu->A >> 1) | ((temp & 1) << 7);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
@@ -217,7 +232,21 @@ int singleStep(i8080 *cpu)
 		clks = 7;
 		cpu->tstates += clks;
 		return clks;
-		case 0x27:	/*TODO*/
+		case 0x27:	/*DAA*/
+		if((cpu->F & AcryFlag) 
+		  || (cpu->A & 0x0f) > 0x09) {
+			cpu->F |= (cpu->A + 0x06) >> 8; // carry can be set but not reset
+		    	cpu->F = (cpu->F &~AcryFlag) |
+			((((cpu->A & 0x0f) + 0x06) & AcryFlag) ? AcryFlag : 0);
+		    	cpu->A += 0x06;
+		}
+		if((cpu->F & CaryFlag)
+		 || (cpu->A & 0xf0) > 0x90) {
+		    	cpu->F |= (cpu->A + 0x60) >> 8; // carry can be set but not reset
+		    	cpu->A += 0x60;
+		}
+		cpu->F &= 0b00010011;
+		cpu->F |= DAA_FLAGS[cpu->A];
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
@@ -225,8 +254,9 @@ int singleStep(i8080 *cpu)
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x29:	/*TODO*/
-		clks = 4;
+		case 0x29:	/*DAD H*/
+		DAD(HL);
+		clks = 10;
 		cpu->tstates += clks;
 		return clks;
 		case 0x2a:	/*LHLD A16*/
@@ -275,6 +305,7 @@ int singleStep(i8080 *cpu)
 		case 0x32:	/*STA A16*/
 		temp = readWRAM(&cpu->RAM, cpu->PC);
 		writeRAM(&cpu->RAM, temp, cpu->A);
+		cpu->PC += 2;
 		clks = 13;
 		cpu->tstates += clks;
 		return clks;
@@ -309,7 +340,8 @@ int singleStep(i8080 *cpu)
 		clks = 10;
 		cpu->tstates += clks;
 		return clks;
-		case 0x37:	/*TODO*/
+		case 0x37:	/*STC*/
+		cpu->F |= CaryFlag;
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
@@ -317,8 +349,9 @@ int singleStep(i8080 *cpu)
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x39:	/*TODO*/
-		clks = 4;
+		case 0x39:	/*DAD SP*/
+		DAD(SP);
+		clks = 10;
 		cpu->tstates += clks;
 		return clks;
 		case 0x3a:	/*LDA A16*/
@@ -348,8 +381,9 @@ int singleStep(i8080 *cpu)
 		clks = 7;
 		cpu->tstates += clks;
 		return clks;
-		case 0x3f:	/*TODO*/
-		clks = 5;
+		case 0x3f:	/*CMC*/
+		cpu->F ^= CaryFlag;
+		clks = 4;
 		cpu->tstates += clks;
 		return clks;
 		case 0x40:	/*MOV B, B*/

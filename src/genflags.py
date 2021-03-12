@@ -35,4 +35,17 @@ for i in range(0, 256):
     if(parity(i) == 0):
         flag |= 0x04; #Even parity set
     print('\t0x%X,' % flag);
+print("};\n");
+
+#DAA flags
+print("const uint8_t DAA_FLAGS[256] = {");
+for i in range(0, 256):
+    flag = 0;
+    if(i == 0):
+        flag |= 0x40; #Zero flag set
+    if((i & 0x80) > 0):
+        flag |= 0x80; #Sign flag set
+    if(parity(i) == 0):
+        flag |= 0x04; #Even parity set
+    print('\t0x%X,' % flag);
 print("};");
