@@ -1477,6 +1477,10 @@ int singleStep(i8080 *cpu)
 #undef INR
 #undef DCR
 #undef DAD
+#undef ADD
+#undef ADC
+#undef SUB
+#undef SBB
 
 void runCPU(i8080 *cpu, int tstates)
 {
