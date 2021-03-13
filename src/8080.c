@@ -100,6 +100,8 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		return clks;
 		case 0xe:	/*MVI C, D8*/
+		cpu->C = readRAM(&cpu->RAM, cpu->PC);
+		cpu->PC++;
 		clks = 7;
 		cpu->tstates += clks;
 		return clks;
@@ -337,6 +339,7 @@ int singleStep(i8080 *cpu)
 		case 0x36:	/*MVI M, D8*/
 		temp = readRAM(&cpu->RAM, cpu->PC);
 		writeRAM(&cpu->RAM, cpu->HL, temp);
+		cpu->PC++;
 		clks = 10;
 		cpu->tstates += clks;
 		return clks;
@@ -1359,6 +1362,9 @@ int singleStep(i8080 *cpu)
 #undef POP
 #undef JMP
 #undef RST
+#undef INR
+#undef DCR
+#undef DAD
 
 void runCPU(i8080 *cpu, int tstates)
 {
