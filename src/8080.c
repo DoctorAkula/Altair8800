@@ -18,12 +18,40 @@
 		cpu->F |= DCR_FLAGS[cpu->R]
 #define DAD(R)	temp = cpu->HL + cpu->R;\
 		cpu->F = (temp >> 16) | (cpu->F &~1);\
-		cpu->HL = temp;
+		cpu->HL = temp
+#define ADD(R)	cpu->F &= 0b00000010;\
+		cpu->F |= (cpu->R + cpu->A) >> 8;\
+		cpu->F |= ((cpu->R & 0xF) + (cpu->A & 0xF) & 0x10);\
+		cpu->A += cpu->R;\
+		cpu->F |= SZP_FLAGS[cpu->A];\
+		cpu->PC++
+#define ADC(R)	temp = cpu->R;\
+		temp = (cpu->F & CaryFlag) ? temp + 1 : temp;\
+		cpu->F &= 0b00000010;\
+		cpu->F |= (temp + cpu->A) >> 8;\
+		cpu->F |= ((temp & 0xF) + (cpu->A & 0xF) & 0x10);\
+		cpu->A += temp;\
+		cpu->F |= SZP_FLAGS[cpu->A];\
+		cpu->PC++
+#define SUB(R)	cpu->F &= 0b00000010;\
+		cpu->F |= (cpu->R - cpu->A) >> 8 & 0x1;\
+		cpu->F |= ((cpu->R & 0xF) - (cpu->A & 0xF) & 0x10);\
+		cpu->A -= cpu->R;\
+		cpu->F |= SZP_FLAGS[cpu->A];\
+		cpu->PC++
+#define SBB(R)	temp = cpu->R;\
+		temp = (cpu->F & CaryFlag) ? temp + 1 : temp;\
+		cpu->F &= 0b00000010;\
+		cpu->F |= (temp - cpu->A) >> 8 & 0x1;\
+		cpu->F |= ((temp & 0xF) - (cpu->A & 0xF) & 0x10);\
+		cpu->A -= temp;\
+		cpu->F |= SZP_FLAGS[cpu->A];\
+		cpu->PC++
 
 int singleStep(i8080 *cpu)
 {
 	int clks;
-	uint16_t temp;
+	uint32_t temp;
 	uint8_t opcode = readRAM(&cpu->RAM, cpu->PC);
 	cpu->PC++;
 	switch(opcode)
@@ -710,131 +738,185 @@ int singleStep(i8080 *cpu)
 		clks = 5;
 		cpu->tstates += clks;
 		return clks;
-		case 0x80:	/*TODO*/
+		case 0x80:	/*ADD B*/
+		ADD(B);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x81:	/*TODO*/
+		case 0x81:	/*ADD C*/
+		ADD(C);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x82:	/*TODO*/
+		case 0x82:	/*ADD D*/
+		ADD(D);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x83:	/*TODO*/
+		case 0x83:	/*ADD E*/
+		ADD(E);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x84:	/*TODO*/
+		case 0x84:	/*ADD H*/
+		ADD(H);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x85:	/*TODO*/
+		case 0x85:	/*ADD L*/
+		ADD(L);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x86:	/*TODO*/
+		case 0x86:	/*ADD M*/
+		temp = readRAM(&cpu->RAM, cpu->HL);
+		cpu->F &= 0b00000010;
+		cpu->F |= (temp + cpu->A) >> 8;
+		cpu->F |= ((temp & 0xF) + (cpu->A & 0xF) & 0x10);
+		cpu->A += temp;
+		cpu->F |= SZP_FLAGS[cpu->A];
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x87:	/*TODO*/
+		case 0x87:	/*ADD A*/
+		ADD(A);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x88:	/*TODO*/
+		case 0x88:	/*ADC B*/
+		ADC(B);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x89:	/*TODO*/
+		case 0x89:	/*ADC C*/
+		ADC(C);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x8a:	/*TODO*/
+		case 0x8a:	/*ADC D*/
+		ADC(D);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x8b:	/*TODO*/
+		case 0x8b:	/*ADC E*/
+		ADC(E);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x8c:	/*TODO*/
+		case 0x8c:	/*ADC H*/
+		ADC(H);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x8d:	/*TODO*/
+		case 0x8d:	/*ADC L*/
+		ADC(L);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x8e:	/*TODO*/
+		case 0x8e:	/*ADC M*/
+		temp = readRAM(&cpu->RAM, cpu->HL);
+		temp = (cpu->F & CaryFlag) ? temp + 1 : temp;
+		cpu->F &= 0b00000010;
+		cpu->F |= (temp + cpu->A) >> 8;
+		cpu->F |= ((temp & 0xF) + (cpu->A & 0xF) & 0x10);
+		cpu->A += temp;
+		cpu->F |= SZP_FLAGS[cpu->A];
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x8f:	/*TODO*/
+		case 0x8f:	/*ADC A*/
+		ADC(A);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x90:	/*TODO*/
+		case 0x90:	/*SUB B*/
+		SUB(B);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x91:	/*TODO*/
+		case 0x91:	/*SUB C*/
+		SUB(C);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x92:	/*TODO*/
+		case 0x92:	/*SUB D*/
+		SUB(D);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x93:	/*TODO*/
+		case 0x93:	/*SUB E*/
+		SUB(E);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x94:	/*TODO*/
+		case 0x94:	/*SUB H*/
+		SUB(H);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x95:	/*TODO*/
+		case 0x95:	/*SUB L*/
+		SUB(L);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x96:	/*TODO*/
+		case 0x96:	/*SUB M*/
+		temp = readRAM(&cpu->RAM, cpu->HL);
+		cpu->F &= 0b00000010;
+		cpu->F |= (temp - cpu->A) >> 8 & 0x1;
+		cpu->F |= ((temp & 0xF) - (cpu->A & 0xF) & 0x10);
+		cpu->A -= temp;
+		cpu->F |= SZP_FLAGS[cpu->A];
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x97:	/*TODO*/
+		case 0x97:	/*SUB A*/
+		SUB(A);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x98:	/*TODO*/
+		case 0x98:	/*SBB B*/
+		SBB(B);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x99:	/*TODO*/
+		case 0x99:	/*SBB C*/
+		SBB(C);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x9a:	/*TODO*/
+		case 0x9a:	/*SBB D*/
+		SBB(D);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x9b:	/*TODO*/
+		case 0x9b:	/*SBB E*/
+		SBB(E);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x9c:	/*TODO*/
+		case 0x9c:	/*SBB H*/
+		SBB(H);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x9d:	/*TODO*/
+		case 0x9d:	/*SBB L*/
+		SBB(L);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x9e:	/*TODO*/
+		case 0x9e:	/*SBB M*/
+		temp = readRAM(&cpu->RAM, cpu->HL);
+		temp = (cpu->F & CaryFlag) ? temp + 1 : temp;
+		cpu->F &= 0b00000010;
+		cpu->F |= (temp - cpu->A) >> 8 & 0x1;
+		cpu->F |= ((temp & 0xF) - (cpu->A & 0xF) & 0x10);
+		cpu->A -= temp;
+		cpu->F |= SZP_FLAGS[cpu->A];
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0x9f:	/*TODO*/
+		case 0x9f:	/*SBB A*/
+		SBB(A);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
@@ -1006,8 +1088,15 @@ int singleStep(i8080 *cpu)
 		clks = 11;
 		cpu->tstates += clks;
 		return clks;
-		case 0xc6:	/*TODO*/
-		clks = 4;
+		case 0xc6:	/*ADI D8*/
+		temp = readRAM(&cpu->RAM, cpu->PC);
+		cpu->F &= 0b00000010;
+		cpu->F |= (temp + cpu->A) >> 8;
+		cpu->F |= ((temp & 0xF) + (cpu->A & 0xF) & 0x10);
+		cpu->A += temp;
+		cpu->F |= SZP_FLAGS[cpu->A];
+		cpu->PC++;
+		clks = 7;
 		cpu->tstates += clks;
 		return clks;
 		case 0xc7:	/*RST 0*/
@@ -1056,7 +1145,15 @@ int singleStep(i8080 *cpu)
 		clks = 17;
 		cpu->tstates += clks;
 		return clks;
-		case 0xce:	/*TODO*/
+		case 0xce:	/*ACI D8*/
+		temp = readRAM(&cpu->RAM, cpu->PC);
+		temp = (cpu->F & CaryFlag) ? temp + 1 : temp;
+		cpu->F &= 0b00000010;
+		cpu->F |= (temp + cpu->A) >> 8;
+		cpu->F |= ((temp & 0xF) + (cpu->A & 0xF) & 0x10);
+		cpu->A += temp;
+		cpu->F |= SZP_FLAGS[cpu->A];
+		cpu->PC++;
 		clks = 7;
 		cpu->tstates += clks;
 		return clks;
@@ -1104,8 +1201,15 @@ int singleStep(i8080 *cpu)
 		clks = 11;
 		cpu->tstates += clks;
 		return clks;
-		case 0xd6:	/*TODO*/
-		clks = 4;
+		case 0xd6:	/*SUI D8*/
+		temp = readRAM(&cpu->RAM, cpu->PC);
+		cpu->F &= 0b00000010;
+		cpu->F |= (temp - cpu->A) >> 8 & 0x1;
+		cpu->F |= ((temp & 0xF) - (cpu->A & 0xF) & 0x10);
+		cpu->A -= temp;
+		cpu->F |= SZP_FLAGS[cpu->A];
+		cpu->PC++;
+		clks = 7;
 		cpu->tstates += clks;
 		return clks;
 		case 0xd7:	/*RST 2*/
@@ -1133,8 +1237,16 @@ int singleStep(i8080 *cpu)
 		clks = 10;
 		cpu->tstates += clks;
 		return clks;
-		case 0xdb:	/*TODO*/
-		clks = 4;
+		case 0xdb:	/*SBI D8*/
+		temp = readRAM(&cpu->RAM, cpu->PC);
+		temp = (cpu->F & CaryFlag) ? temp + 1 : temp;
+		cpu->F &= 0b00000010;
+		cpu->F |= (temp - cpu->A) >> 8 & 0x1;
+		cpu->F |= ((temp & 0xF) - (cpu->A & 0xF) & 0x10);
+		cpu->A -= temp;
+		cpu->F |= SZP_FLAGS[cpu->A];
+		cpu->PC++;
+		clks = 7;
 		cpu->tstates += clks;
 		return clks;
 		case 0xdc:	/*CC*/
