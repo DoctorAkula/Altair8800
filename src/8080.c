@@ -357,6 +357,7 @@ int singleStep(i8080 *cpu)
 		case 0x3a:	/*LDA A16*/
 		temp = readWRAM(&cpu->RAM, cpu->PC);
 		cpu->A = readRAM(&cpu->RAM, temp);
+		cpu->PC += 2;
 		clks = 13;
 		cpu->tstates += clks;
 		return clks;
@@ -976,9 +977,9 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		return clks;
 		case 0xc2:	/*JNZ A16*/
-		if(!(cpu->F & ZeroFlag)){
+		if(!(cpu->F & ZeroFlag)) {
 			JMP;
-		}
+		}else cpu->PC += 2;
 		clks = 10;
 		cpu->tstates += clks;
 		return clks;
@@ -988,9 +989,10 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		return clks;
 		case 0xc4:	/*CNZ A16*/
+		cpu->PC += 2;
 		if(cpu->F & ZeroFlag) clks = 11;
 		else{
-			PUSH(cpu->PC + 2);
+			PUSH(cpu->PC);
 			JMP;
 			clks = 17;
 		}
@@ -1026,7 +1028,7 @@ int singleStep(i8080 *cpu)
 		case 0xca:	/*JZ A16*/
 		if(cpu->F & ZeroFlag){
 			JMP;
-		}
+		}else cpu->PC += 2;
 		clks = 10;
 		cpu->tstates += clks;
 		return clks;
@@ -1036,9 +1038,10 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		return clks;
 		case 0xcc:	/*CZ A16*/
+		cpu->PC += 2;
 		if(!(cpu->F & ZeroFlag)) clks = 11;
 		else{
-			PUSH(cpu->PC + 2);
+			PUSH(cpu->PC);
 			JMP;
 			clks = 17;
 		}
@@ -1075,7 +1078,7 @@ int singleStep(i8080 *cpu)
 		case 0xd2:	/*JNC A16*/
 		if(!(cpu->F & CaryFlag)){
 			JMP;
-		}
+		}else cpu->PC += 2;
 		clks = 10;
 		cpu->tstates += clks;
 		return clks;
@@ -1084,9 +1087,10 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		return clks;
 		case 0xd4:	/*CNC A16*/
+		cpu->PC += 2;
 		if(cpu->F & CaryFlag) clks = 11;
 		else{
-			PUSH(cpu->PC + 2);
+			PUSH(cpu->PC);
 			JMP;
 			clks = 17;
 		}
@@ -1133,7 +1137,7 @@ int singleStep(i8080 *cpu)
 		case 0xdc:	/*CC*/
 		if(!(cpu->F & CaryFlag)) clks = 11;
 		else{
-			PUSH(cpu->PC + 2);
+			PUSH(cpu->PC);
 			JMP;
 			clks = 17;
 		}
@@ -1170,7 +1174,7 @@ int singleStep(i8080 *cpu)
 		case 0xe2:	/*JPO A16*/
 		if(!(cpu->F & PariFlag)){
 			JMP;
-		}
+		}else cpu->PC += 2;
 		clks = 10;
 		cpu->tstates += clks;
 		return clks;
@@ -1180,9 +1184,10 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		return clks;
 		case 0xe4:	/*CPO A16*/
+		cpu->PC += 2;
 		if(cpu->F & PariFlag) clks = 11;
 		else{
-			PUSH(cpu->PC + 2);
+			PUSH(cpu->PC);
 			JMP;
 			clks = 17;
 		}
@@ -1218,7 +1223,7 @@ int singleStep(i8080 *cpu)
 		case 0xea:	/*JPE A16*/
 		if(cpu->F & PariFlag){
 			JMP;
-		}
+		}else cpu->PC += 2;
 		clks = 10;
 		cpu->tstates += clks;
 		return clks;
@@ -1230,9 +1235,10 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		return clks;
 		case 0xec:	/*CPE A16*/
+		cpu->PC += 2;
 		if(!(cpu->F & PariFlag)) clks = 11;
 		else{
-			PUSH(cpu->PC + 2);
+			PUSH(cpu->PC);
 			JMP;
 			clks = 17;
 		}
@@ -1268,7 +1274,7 @@ int singleStep(i8080 *cpu)
 		case 0xf2:	/*JP A16*/
 		if(!(cpu->F & SignFlag)){
 			JMP;
-		}
+		}else cpu->PC += 2;
 		cpu->tstates += clks;
 		return clks;
 		case 0xf3:	/*TODO*/
@@ -1276,9 +1282,10 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		return clks;
 		case 0xf4:	/*CP A16*/
+		cpu->PC += 2;
 		if(cpu->F & SignFlag) clks = 11;
 		else{
-			PUSH(cpu->PC + 2);
+			PUSH(cpu->PC);
 			JMP;
 			clks = 17;
 		}
@@ -1314,7 +1321,7 @@ int singleStep(i8080 *cpu)
 		case 0xfa:	/*JM A16*/
 		if(cpu->F & SignFlag){
 			JMP;
-		}
+		}else cpu->PC += 2;
 		cpu->tstates += clks;
 		return clks;
 		case 0xfb:	/*TODO*/
@@ -1322,9 +1329,10 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		return clks;
 		case 0xfc:	/*CM A16*/
+		cpu->PC += 2;
 		if(!(cpu->F & SignFlag)) clks = 11;
 		else{
-			PUSH(cpu->PC + 2);
+			PUSH(cpu->PC);
 			JMP;
 			clks = 17;
 		}
