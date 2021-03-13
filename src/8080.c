@@ -47,6 +47,20 @@
 		cpu->A -= temp;\
 		cpu->F |= SZP_FLAGS[cpu->A];\
 		cpu->PC++
+#define ANA(R)	cpu->F &= 0b00000010;\
+		cpu->F |= ((cpu->A | cpu->R) & 0x8) << 1; /*Aux carry is equal to OR of bit 3 of operand and accumulator*/\
+		cpu->A &= cpu->R;\
+		cpu->F |= SZP_FLAGS[cpu->A]
+#define XRA(R)	cpu->F &= 0b00000010;\
+		cpu->A ^= cpu->R;\
+		cpu->F |= SZP_FLAGS[cpu->A]
+#define ORA(R)	cpu->F &= 0b00000010;\
+		cpu->A |= cpu->R;\
+		cpu->F |= SZP_FLAGS[cpu->A]
+#define CMP(R)	cpu->F &= 0b00000010;\
+		cpu->F |= (cpu->R - cpu->A) >> 8 & 0x1;\
+		cpu->F |= ((cpu->R & 0xF) - (cpu->A & 0xF) & 0x10);\
+		cpu->F |= SZP_FLAGS[cpu->A - cpu->R];
 
 int singleStep(i8080 *cpu)
 {
@@ -920,131 +934,177 @@ int singleStep(i8080 *cpu)
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0xa0:	/*TODO*/
+		case 0xa0:	/*ANA B*/
+		ANA(B);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0xa1:	/*TODO*/
+		case 0xa1:	/*ANA C*/
+		ANA(C);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0xa2:	/*TODO*/
+		case 0xa2:	/*ANA D*/
+		ANA(D);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0xa3:	/*TODO*/
+		case 0xa3:	/*ANA E*/
+		ANA(E);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0xa4:	/*TODO*/
+		case 0xa4:	/*ANA H*/
+		ANA(H);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0xa5:	/*TODO*/
+		case 0xa5:	/*ANA L*/
+		ANA(L);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0xa6:	/*TODO*/
+		case 0xa6:	/*ANA M*/
+		temp = readRAM(&cpu->RAM, cpu->HL);
+		cpu->F &= 0b00000010;
+		cpu->F |= ((cpu->A | temp) & 0x8) << 1; //Aux carry is equal to OR of bit 3 of operand and accumulator
+		cpu->A &= temp;
+		cpu->F |= SZP_FLAGS[cpu->A];
+		clks = 7;
+		cpu->tstates += clks;
+		return clks;
+		case 0xa7:	/*ANA A*/
+		ANA(A);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0xa7:	/*TODO*/
+		case 0xa8:	/*XRA B*/
+		XRA(B);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0xa8:	/*TODO*/
+		case 0xa9:	/*XRA C*/
+		XRA(C);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0xa9:	/*TODO*/
+		case 0xaa:	/*XRA D*/
+		XRA(D);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0xaa:	/*TODO*/
+		case 0xab:	/*XRA E*/
+		XRA(E);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0xab:	/*TODO*/
+		case 0xac:	/*XRA H*/
+		XRA(H);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0xac:	/*TODO*/
+		case 0xad:	/*XRA L*/
+		XRA(L);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0xad:	/*TODO*/
+		case 0xae:	/*XRA M*/
+		temp = readRAM(&cpu->RAM, cpu->HL);
+		cpu->F &= 0b00000010;
+		cpu->A ^= temp;
+		cpu->F |= SZP_FLAGS[cpu->A];
+		clks = 7;
+		cpu->tstates += clks;
+		return clks;
+		case 0xaf:	/*XRA A*/
+		XRA(A);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0xae:	/*TODO*/
+		case 0xb0:	/*ORA B*/
+		ORA(B);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0xaf:	/*TODO*/
+		case 0xb1:	/*ORA C*/
+		ORA(C);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0xb0:	/*TODO*/
+		case 0xb2:	/*ORA D*/
+		ORA(D);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0xb1:	/*TODO*/
+		case 0xb3:	/*ORA E*/
+		ORA(E);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0xb2:	/*TODO*/
+		case 0xb4:	/*ORA H*/
+		ORA(H);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0xb3:	/*TODO*/
+		case 0xb5:	/*ORA L*/
+		ORA(L);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0xb4:	/*TODO*/
+		case 0xb6:	/*ORA M*/
+		temp = readRAM(&cpu->RAM, cpu->HL);
+		cpu->F &= 0b00000010;
+		cpu->A |= temp;
+		cpu->F |= SZP_FLAGS[cpu->A];
+		clks = 7;
+		cpu->tstates += clks;
+		return clks;
+		case 0xb7:	/*ORA A*/
+		ORA(A);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0xb5:	/*TODO*/
+		case 0xb8:	/*CMP B*/
+		CMP(B);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0xb6:	/*TODO*/
+		case 0xb9:	/*CMP C*/
+		CMP(C);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0xb7:	/*TODO*/
+		case 0xba:	/*CMP D*/
+		CMP(D);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0xb8:	/*TODO*/
+		case 0xbb:	/*CMP E*/
+		CMP(E);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0xb9:	/*TODO*/
+		case 0xbc:	/*CMP H*/
+		CMP(H);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0xba:	/*TODO*/
+		case 0xbd:	/*CMP L*/
+		CMP(L);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
-		case 0xbb:	/*TODO*/
-		clks = 4;
+		case 0xbe:	/*CMP M*/
+		temp = readRAM(&cpu->RAM, cpu->PC);
+		cpu->F &= 0b00000010;
+		cpu->F |= (temp - cpu->A) >> 8 & 0x1;
+		cpu->F |= ((temp & 0xF) - (cpu->A & 0xF) & 0x10);
+		cpu->F |= SZP_FLAGS[cpu->A - temp];
+		clks = 7;
 		cpu->tstates += clks;
 		return clks;
-		case 0xbc:	/*TODO*/
-		clks = 4;
-		cpu->tstates += clks;
-		return clks;
-		case 0xbd:	/*TODO*/
-		clks = 4;
-		cpu->tstates += clks;
-		return clks;
-		case 0xbe:	/*TODO*/
-		clks = 4;
-		cpu->tstates += clks;
-		return clks;
-		case 0xbf:	/*TODO*/
+		case 0xbf:	/*CMP A*/
+		CMP(A);
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;
@@ -1313,8 +1373,14 @@ int singleStep(i8080 *cpu)
 		clks = 11;
 		cpu->tstates += clks;
 		return clks;
-		case 0xe6:	/*TODO*/
-		clks = 4;
+		case 0xe6:	/*ANI D8*/
+		temp = readRAM(&cpu->RAM, cpu->PC);
+		cpu->F &= 0b00000010;
+		cpu->F |= ((cpu->A | temp) & 0x8) << 1; //Aux carry is equal to OR of bit 3 of operand and accumulator
+		cpu->A &= temp;
+		cpu->F |= SZP_FLAGS[cpu->A];
+		cpu->PC++;
+		clks = 7;
 		cpu->tstates += clks;
 		return clks;
 		case 0xe7:	/*RST 4*/
@@ -1365,8 +1431,13 @@ int singleStep(i8080 *cpu)
 		clks = 17;
 		cpu->tstates += clks;
 		return clks;
-		case 0xee:	/*TODO*/
-		clks = 4;
+		case 0xee:	/*XRI D8*/
+		temp = readRAM(&cpu->RAM, cpu->PC);
+		cpu->F &= 0b00000010;
+		cpu->A ^= temp;
+		cpu->F |= SZP_FLAGS[cpu->A];
+		cpu->PC++;
+		clks = 7;
 		cpu->tstates += clks;
 		return clks;
 		case 0xef:	/*RST 5*/
@@ -1411,8 +1482,13 @@ int singleStep(i8080 *cpu)
 		clks = 11;
 		cpu->tstates += clks;
 		return clks;
-		case 0xf6:	/*TODO*/
-		clks = 4;
+		case 0xf6:	/*ORI D8*/
+		temp = readRAM(&cpu->RAM, cpu->PC);
+		cpu->F &= 0b00000010;
+		cpu->A |= temp;
+		cpu->F |= SZP_FLAGS[cpu->A];
+		cpu->PC++;
+		clks = 7;
 		cpu->tstates += clks;
 		return clks;
 		case 0xf7:	/*RST 6*/
@@ -1459,8 +1535,14 @@ int singleStep(i8080 *cpu)
 		clks = 17;
 		cpu->tstates += clks;
 		return clks;
-		case 0xfe:	/*TODO*/
-		clks = 4;
+		case 0xfe:	/*CPI D8*/
+		temp = readRAM(&cpu->RAM, cpu->PC);
+		cpu->F &= 0b00000010;
+		cpu->F |= (temp - cpu->A) >> 8 & 0x1;
+		cpu->F |= ((temp & 0xF) - (cpu->A & 0xF) & 0x10);
+		cpu->F |= SZP_FLAGS[cpu->A - temp];
+		cpu->PC++;
+		clks = 7;
 		cpu->tstates += clks;
 		return clks;
 		case 0xff:	/*RST 7*/
@@ -1481,6 +1563,10 @@ int singleStep(i8080 *cpu)
 #undef ADC
 #undef SUB
 #undef SBB
+#undef ANA
+#undef XRA
+#undef ORA
+#undef CMP
 
 void runCPU(i8080 *cpu, int tstates)
 {
