@@ -246,7 +246,7 @@ int singleStep(i8080 *cpu)
 		    	cpu->A += 0x60;
 		}
 		cpu->F &= 0b00010011;
-		cpu->F |= DAA_FLAGS[cpu->A];
+		cpu->F |= SZP_FLAGS[cpu->A];
 		clks = 4;
 		cpu->tstates += clks;
 		return clks;

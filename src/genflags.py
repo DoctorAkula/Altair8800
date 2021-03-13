@@ -37,8 +37,8 @@ for i in range(0, 256):
     print('\t0x%X,' % flag);
 print("};\n");
 
-#DAA flags
-print("const uint8_t DAA_FLAGS[256] = {");
+#Sign Zero & Parity flags
+print("const uint8_t SZP_FLAGS[256] = {");
 for i in range(0, 256):
     flag = 0;
     if(i == 0):

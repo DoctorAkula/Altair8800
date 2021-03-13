@@ -518,7 +518,7 @@ const uint8_t DCR_FLAGS[256] = {
 	0x94,
 };
 
-const uint8_t DAA_FLAGS[256] = {
+const uint8_t SZP_FLAGS[256] = {
 	0x44,
 	0x0,
 	0x0,
