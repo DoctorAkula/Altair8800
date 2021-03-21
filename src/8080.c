@@ -1099,7 +1099,7 @@ int singleStep(i8080 *cpu)
 		cpu->F &= 0b00000010;
 		cpu->F |= (temp - cpu->A) >> 8 & 0x1;
 		cpu->F |= ((temp & 0xF) - (cpu->A & 0xF) & 0x10);
-		cpu->F |= SZP_FLAGS[cpu->A - temp];
+		cpu->F |= SZP_FLAGS[(uint8_t)(cpu->A - temp)];
 		clks = 7;
 		cpu->tstates += clks;
 		return clks;
@@ -1540,7 +1540,7 @@ int singleStep(i8080 *cpu)
 		cpu->F &= 0b00000010;
 		cpu->F |= (temp - cpu->A) >> 8 & 0x1;
 		cpu->F |= ((temp & 0xF) - (cpu->A & 0xF) & 0x10);
-		cpu->F |= SZP_FLAGS[cpu->A - temp];
+		cpu->F |= SZP_FLAGS[(uint8_t)(cpu->A - temp)];
 		cpu->PC++;
 		clks = 7;
 		cpu->tstates += clks;

@@ -20,8 +20,9 @@ bool checkDownChange(FrontPanel *c, FrontPanel *o, int mask)
 
 void panelLogic(FrontPanel *panel, i8080 *cpu)
 {
-	static FrontPanel oldpanel = {0,0,0,0,0,0,false};
+	static FrontPanel oldpanel = {0,0,0,0,0,0,false,false};
 	if(panel->power){
+		/*Power switch stuff*/
 		if(!oldpanel.power){
 			panel->addr = rand();
 			int size = 1 << (cpu->RAM.addrSize - 2);
@@ -59,6 +60,18 @@ void panelLogic(FrontPanel *panel, i8080 *cpu)
 		
 		panel->data = readRAM(&cpu->RAM, panel->addr);
 
+		if(panel->contswitchesdown & StopRun)
+			panel->running = true;
+
+		if(panel->contswitchesup & StopRun)
+			panel->running = false;
+
+		/*Running stuff*/
+		if(panel->running){
+			runCPU(cpu, 2000000);
+			panel->addr = cpu->PC;
+		}
+
 		/*Status light stuff*/
 		if(readProt(&cpu->RAM, panel->addr))
 			panel->stat |= PROT;
@@ -68,6 +81,7 @@ void panelLogic(FrontPanel *panel, i8080 *cpu)
 		panel->addr = 0;
 		panel->data = 0;
 		panel->stat = 0;
+		panel->running = false;
 	}
 	oldpanel = *panel;
 }

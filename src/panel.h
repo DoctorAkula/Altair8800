@@ -10,6 +10,7 @@ typedef struct FrontPanel{
 	uint8_t contswitchesup;
 	uint8_t contswitchesdown;
 	uint16_t dataswitches;
+	bool running;
 	bool power;
 }FrontPanel;
 

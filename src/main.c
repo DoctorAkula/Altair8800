@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
 	Sound sounds[slength];
 	Image images[ilength];
 	Texture2D textures[ilength];
-	FrontPanel panel = {0,0,0,0,0,0,false};
+	FrontPanel panel = {0,0,0,0,0,0,false,false};
 	i8080 cpu = {A: 0,F: 0,BC: 0,DE: 0,HL: 0,SP: 0,PC: 0,
 		    RAM: newDRAM(16, 8), tstates: 0, halt: 0};
 	for(int i = 0; i < slength; i++)
@@ -166,4 +166,5 @@ int main(int argc, char *argv[])
 	EndDrawing();
 	}
 	/*Main Loop End*/
+	freeDRAM(&(cpu.RAM));
 }

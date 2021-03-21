@@ -14,6 +14,12 @@ dedicatedRAM newDRAM(int addrSize, int PageSize)
 	};
 }
 
+void freeDRAM(dedicatedRAM *RAM)
+{
+	free(RAM->prot);
+	free(RAM->RAM);
+}
+
 void setProt(dedicatedRAM *RAM, uint16_t addr)
 {
 	int mask = (1 << RAM->addrSize) - 1;

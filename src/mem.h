@@ -10,6 +10,7 @@ typedef struct dedicatedRAM{
 }dedicatedRAM;
 
 dedicatedRAM newDRAM(int MemSize, int PageSize);
+void freeDRAM(dedicatedRAM *RAM);
 void setProt(dedicatedRAM *RAM, uint16_t addr);
 void clearProt(dedicatedRAM *RAM, uint16_t addr);
 uint8_t readProt(dedicatedRAM *RAM, uint16_t addr);
