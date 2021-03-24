@@ -1296,16 +1296,8 @@ int singleStep(i8080 *cpu)
 		clks = 10;
 		cpu->tstates += clks;
 		return clks;
-		case 0xdb:	/*SBI D8*/
-		temp = readRAM(&cpu->RAM, cpu->PC);
-		temp = (cpu->F & CaryFlag) ? temp + 1 : temp;
-		cpu->F &= 0b00000010;
-		cpu->F |= (cpu->A - temp) >> 8 & 0x1;
-		cpu->F |= ((cpu->A & 0xF) - (temp & 0xF) & 0x10);
-		cpu->A -= temp;
-		cpu->F |= SZP_FLAGS[cpu->A];
-		cpu->PC++;
-		clks = 7;
+		case 0xdb:	/*TODO*/
+		clks = 4;
 		cpu->tstates += clks;
 		return clks;
 		case 0xdc:	/*CC*/
@@ -1323,8 +1315,16 @@ int singleStep(i8080 *cpu)
 		clks = 17;
 		cpu->tstates += clks;
 		return clks;
-		case 0xde:	/*TODO*/
-		clks = 4;
+		case 0xde:	/*SBI D8*/
+		temp = readRAM(&cpu->RAM, cpu->PC);
+		temp = (cpu->F & CaryFlag) ? temp + 1 : temp;
+		cpu->F &= 0b00000010;
+		cpu->F |= (cpu->A - temp) >> 8 & 0x1;
+		cpu->F |= ((cpu->A & 0xF) - (temp & 0xF) & 0x10);
+		cpu->A -= temp;
+		cpu->F |= SZP_FLAGS[cpu->A];
+		cpu->PC++;
+		clks = 7;
 		cpu->tstates += clks;
 		return clks;
 		case 0xdf:	/*RST 3*/
