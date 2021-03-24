@@ -4,6 +4,7 @@
 #include<stdlib.h>
 typedef struct dedicatedRAM{
 	uint8_t addrSize; 	/*Size of address bus in bits*/
+	uint16_t addrMask;	/*Bit mask used to bound input address*/
 	uint8_t *RAM;		/*Self explanitory*/
 	uint8_t PageSize; 	/*Size of page address bus in bits*/
 	uint8_t *prot; 		/*Memory protected flag buffer*/
