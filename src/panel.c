@@ -68,7 +68,7 @@ void panelLogic(FrontPanel *panel, i8080 *cpu)
 
 		/*Running stuff*/
 		if(panel->running){
-			runCPU(cpu, 2000000);
+			runCPU(cpu, 2000000 / 60);
 			panel->addr = cpu->PC;
 		}
 
