@@ -7,20 +7,25 @@
 
 void disp8080(i8080 *cpu, int pos)
 {
-		mvprintw(0, pos, "A: 0x%X F: 0x%X    ",
-	                      cpu->A,  cpu->F);
-		mvprintw(1, pos, "B: 0x%X C: 0x%X    ",
-	                      cpu->B,  cpu->C);
-		mvprintw(2, pos, "C: 0x%X E: 0x%X    ",
-	                      cpu->D,  cpu->E);
-		mvprintw(3, pos, "H: 0x%X L: 0x%X    ",
-	                      cpu->H,  cpu->L);
-		mvprintw(4, pos, "PC: 0x%X    ",
-	                      cpu->PC);
-		mvprintw(5, pos, "SP: 0x%X    ",
-	                      cpu->SP);
-		mvprintw(6, pos, "T-States: %d            ",
-	                      cpu->tstates);
+	mvprintw(0, pos, "SZ0A0P1C");
+	for(int i = 0; i < 8; i++){
+		mvprintw(1, (pos+7) - i, "%d",
+			(cpu->F >> i) & 1);
+	}
+	mvprintw(2, pos, "A: 0x%0*X F: 0x%0*X",
+		  2, cpu->A,2,cpu->F);
+	mvprintw(3, pos, "B: 0x%0*X C: 0x%0*X",
+		  2, cpu->B,2,cpu->C);0*
+	mvprintw(4, pos, "C: 0x%0*X E: 0x%0*X",
+		  2, cpu->D,2,cpu->E);
+	mvprintw(5, pos, "H: 0x%0*X L: 0x%0*X",
+		  2, cpu->H,2,cpu->L);
+	mvprintw(6, pos, "PC: 0x%0*X",
+		  4, cpu->PC);
+	mvprintw(7, pos, "SP: 0x%0*X",
+		  4, cpu->SP);
+	mvprintw(8, pos, "T-States: %*d",
+		  10, cpu->tstates);
 }
 
 void dispDRAM(i8080 *cpu, unsigned addr)
