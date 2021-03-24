@@ -59,14 +59,12 @@ void writeRAM(dedicatedRAM *RAM, uint16_t addr, uint8_t data)
 
 uint16_t readWRAM(dedicatedRAM *RAM, uint16_t addr)
 {
-	addr &= RAM->addrMask;
-	return *(uint16_t*)(RAM->RAM + addr);
+	return (uint16_t)readRAM(RAM, addr++) |
+		((uint16_t)readRAM(RAM, addr) << 8);
 }
 
 void writeWRAM(dedicatedRAM *RAM, uint16_t addr, uint16_t data)
 {
-	addr &= RAM->addrMask;
-	uint16_t protAddr = addr >> RAM->PageSize;
-	if(!RAM->prot[protAddr])
-		*(uint16_t*)(RAM->RAM + addr) = data;
+	writeRAM(RAM, addr++, data & 0xFF);
+	writeRAM(RAM, addr, data >> 8);
 }
