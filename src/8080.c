@@ -20,33 +20,31 @@
 		cpu->F = (temp >> 16) | (cpu->F &~1);\
 		cpu->HL = temp
 #define ADD(R)	cpu->F &= 0b00000010;\
-		cpu->F |= (cpu->R + cpu->A) >> 8;\
+		temp = cpu->R + cpu->A;\
+		cpu->F |= temp >> 8;\
 		cpu->F |= ((cpu->R & 0xF) + (cpu->A & 0xF) & 0x10);\
-		cpu->A += cpu->R;\
-		cpu->F |= SZP_FLAGS[cpu->A];\
-		cpu->PC++
+		cpu->A = temp;\
+		cpu->F |= SZP_FLAGS[cpu->A]
 #define ADC(R)	temp = cpu->R;\
 		temp = (cpu->F & CaryFlag) ? temp + 1 : temp;\
 		cpu->F &= 0b00000010;\
 		cpu->F |= (temp + cpu->A) >> 8;\
 		cpu->F |= ((temp & 0xF) + (cpu->A & 0xF) & 0x10);\
 		cpu->A += temp;\
-		cpu->F |= SZP_FLAGS[cpu->A];\
-		cpu->PC++
+		cpu->F |= SZP_FLAGS[cpu->A]
 #define SUB(R)	cpu->F &= 0b00000010;\
-		cpu->F |= (cpu->R - cpu->A) >> 8 & 0x1;\
-		cpu->F |= ((cpu->R & 0xF) - (cpu->A & 0xF) & 0x10);\
-		cpu->A -= cpu->R;\
-		cpu->F |= SZP_FLAGS[cpu->A];\
-		cpu->PC++
+		temp = cpu->A - cpu->R;\
+		cpu->F |= temp >> 8 & 0x1;\
+		cpu->F |= ((cpu->A & 0xF) - (cpu->R & 0xF) & 0x10);\
+		cpu->A = temp;\
+		cpu->F |= SZP_FLAGS[cpu->A]
 #define SBB(R)	temp = cpu->R;\
 		temp = (cpu->F & CaryFlag) ? temp + 1 : temp;\
 		cpu->F &= 0b00000010;\
-		cpu->F |= (temp - cpu->A) >> 8 & 0x1;\
-		cpu->F |= ((temp & 0xF) - (cpu->A & 0xF) & 0x10);\
+		cpu->F |= (cpu->A - temp) >> 8 & 0x1;\
+		cpu->F |= ((cpu->A & 0xF) - (temp & 0xF) & 0x10);\
 		cpu->A -= temp;\
-		cpu->F |= SZP_FLAGS[cpu->A];\
-		cpu->PC++
+		cpu->F |= SZP_FLAGS[cpu->A]
 #define ANA(R)	cpu->F &= 0b00000010;\
 		cpu->F |= ((cpu->A | cpu->R) & 0x8) << 1; /*Aux carry is equal to OR of bit 3 of operand and accumulator*/\
 		cpu->A &= cpu->R;\
@@ -58,9 +56,10 @@
 		cpu->A |= cpu->R;\
 		cpu->F |= SZP_FLAGS[cpu->A]
 #define CMP(R)	cpu->F &= 0b00000010;\
-		cpu->F |= (cpu->R - cpu->A) >> 8 & 0x1;\
-		cpu->F |= ((cpu->R & 0xF) - (cpu->A & 0xF) & 0x10);\
-		cpu->F |= SZP_FLAGS[cpu->A - cpu->R];
+		temp = (cpu->A - cpu->R);\
+		cpu->F |= temp >> 8 & 0x1;\
+		cpu->F |= ((cpu->A & 0xF) - (cpu->R & 0xF) & 0x10);\
+		cpu->F |= SZP_FLAGS[(uint8_t)temp]
 
 int singleStep(i8080 *cpu)
 {
@@ -876,8 +875,8 @@ int singleStep(i8080 *cpu)
 		case 0x96:	/*SUB M*/
 		temp = readRAM(&cpu->RAM, cpu->HL);
 		cpu->F &= 0b00000010;
-		cpu->F |= (temp - cpu->A) >> 8 & 0x1;
-		cpu->F |= ((temp & 0xF) - (cpu->A & 0xF) & 0x10);
+		cpu->F |= (cpu->A - temp) >> 8 & 0x1;
+		cpu->F |= ((cpu->A & 0xF) - (temp & 0xF) & 0x10);
 		cpu->A -= temp;
 		cpu->F |= SZP_FLAGS[cpu->A];
 		clks = 4;
@@ -922,8 +921,8 @@ int singleStep(i8080 *cpu)
 		temp = readRAM(&cpu->RAM, cpu->HL);
 		temp = (cpu->F & CaryFlag) ? temp + 1 : temp;
 		cpu->F &= 0b00000010;
-		cpu->F |= (temp - cpu->A) >> 8 & 0x1;
-		cpu->F |= ((temp & 0xF) - (cpu->A & 0xF) & 0x10);
+		cpu->F |= (cpu->A - temp) >> 8 & 0x1;
+		cpu->F |= ((cpu->A & 0xF) - (temp & 0xF) & 0x10);
 		cpu->A -= temp;
 		cpu->F |= SZP_FLAGS[cpu->A];
 		clks = 4;
@@ -1097,9 +1096,9 @@ int singleStep(i8080 *cpu)
 		case 0xbe:	/*CMP M*/
 		temp = readRAM(&cpu->RAM, cpu->PC);
 		cpu->F &= 0b00000010;
-		cpu->F |= (temp - cpu->A) >> 8 & 0x1;
-		cpu->F |= ((temp & 0xF) - (cpu->A & 0xF) & 0x10);
-		cpu->F |= SZP_FLAGS[(uint8_t)(cpu->A - temp)];
+		cpu->F |= (cpu->A - temp) >> 8 & 0x1;
+		cpu->F |= ((cpu->A & 0xF) - (temp & 0xF) & 0x10);
+		cpu->F |= SZP_FLAGS[(uint8_t)(temp - cpu->A)];
 		clks = 7;
 		cpu->tstates += clks;
 		return clks;
@@ -1264,8 +1263,8 @@ int singleStep(i8080 *cpu)
 		case 0xd6:	/*SUI D8*/
 		temp = readRAM(&cpu->RAM, cpu->PC);
 		cpu->F &= 0b00000010;
-		cpu->F |= (temp - cpu->A) >> 8 & 0x1;
-		cpu->F |= ((temp & 0xF) - (cpu->A & 0xF) & 0x10);
+		cpu->F |= (cpu->A - temp) >> 8 & 0x1;
+		cpu->F |= ((cpu->A & 0xF) - (temp & 0xF) & 0x10);
 		cpu->A -= temp;
 		cpu->F |= SZP_FLAGS[cpu->A];
 		cpu->PC++;
@@ -1301,8 +1300,8 @@ int singleStep(i8080 *cpu)
 		temp = readRAM(&cpu->RAM, cpu->PC);
 		temp = (cpu->F & CaryFlag) ? temp + 1 : temp;
 		cpu->F &= 0b00000010;
-		cpu->F |= (temp - cpu->A) >> 8 & 0x1;
-		cpu->F |= ((temp & 0xF) - (cpu->A & 0xF) & 0x10);
+		cpu->F |= (cpu->A - temp) >> 8 & 0x1;
+		cpu->F |= ((cpu->A & 0xF) - (temp & 0xF) & 0x10);
 		cpu->A -= temp;
 		cpu->F |= SZP_FLAGS[cpu->A];
 		cpu->PC++;
@@ -1538,8 +1537,8 @@ int singleStep(i8080 *cpu)
 		case 0xfe:	/*CPI D8*/
 		temp = readRAM(&cpu->RAM, cpu->PC);
 		cpu->F &= 0b00000010;
-		cpu->F |= (temp - cpu->A) >> 8 & 0x1;
-		cpu->F |= ((temp & 0xF) - (cpu->A & 0xF) & 0x10);
+		cpu->F |= (cpu->A - temp) >> 8 & 0x1;
+		cpu->F |= ((cpu->A & 0xF) - (temp & 0xF) & 0x10);
 		cpu->F |= SZP_FLAGS[(uint8_t)(cpu->A - temp)];
 		cpu->PC++;
 		clks = 7;

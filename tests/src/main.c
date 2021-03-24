@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 	WINDOW *win = initscr();
 	cbreak();
 	noecho();
-	i8080 cpu= {A: 0,F: 0,BC: 0,DE: 0,HL: 0,SP: 0,PC: 0,
+	i8080 cpu= {A: 0,F: 2,BC: 0,DE: 0,HL: 0,SP: 0,PC: 0,
 		    RAM: newDRAM(MEMSIZE, MEMSIZE), tstates: 0, halt: 0};
 	char in;
 	unsigned addr;
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 				singleStep(&cpu);
 				break;
 			case 'r':
-				cpu.AF = 0;
+				cpu.AF = 2;
 				cpu.BC = 0;
 				cpu.DE = 0;
 				cpu.HL = 0;
