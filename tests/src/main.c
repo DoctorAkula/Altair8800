@@ -7,17 +7,17 @@
 
 void disp8080(i8080 *cpu, int pos)
 {
-		mvprintw(0, pos, "A: 0x%X F: 0x%X  ",
+		mvprintw(0, pos, "A: 0x%X F: 0x%X    ",
 	                      cpu->A,  cpu->F);
-		mvprintw(1, pos, "B: 0x%X C: 0x%X  ",
+		mvprintw(1, pos, "B: 0x%X C: 0x%X    ",
 	                      cpu->B,  cpu->C);
-		mvprintw(2, pos, "C: 0x%X E: 0x%X  ",
+		mvprintw(2, pos, "C: 0x%X E: 0x%X    ",
 	                      cpu->D,  cpu->E);
-		mvprintw(3, pos, "H: 0x%X L: 0x%X  ",
+		mvprintw(3, pos, "H: 0x%X L: 0x%X    ",
 	                      cpu->H,  cpu->L);
-		mvprintw(4, pos, "PC: 0x%X  ",
+		mvprintw(4, pos, "PC: 0x%X    ",
 	                      cpu->PC);
-		mvprintw(5, pos, "SP: 0x%X  ",
+		mvprintw(5, pos, "SP: 0x%X    ",
 	                      cpu->SP);
 		mvprintw(6, pos, "T-States: %d            ",
 	                      cpu->tstates);
