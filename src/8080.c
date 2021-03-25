@@ -1353,7 +1353,9 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		return clks;
 		case 0xe3:	/*XTHL*/
+		temp = readWRAM(&cpu->RAM, cpu->SP);
 		writeWRAM(&cpu->RAM, cpu->SP, cpu->HL);
+		cpu->HL = temp;
 		clks = 18;
 		cpu->tstates += clks;
 		return clks;
