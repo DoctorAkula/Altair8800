@@ -1,4 +1,7 @@
+#include<string.h>
 #include<curses.h>
+#include<errno.h>
+#include<stdio.h>
 
 #include"8080.h"
 #include"mem.h"
@@ -56,10 +59,12 @@ int main(int argc, char *argv[])
 	WINDOW *win = initscr();
 	cbreak();
 	noecho();
-	i8080 cpu= {A: 0,F: 2,BC: 0,DE: 0,HL: 0,SP: 0,PC: 0,
+	i8080 cpu= {A: 0,F: 0x46,BC: 0,DE: 0,HL: 0,SP: 0,PC: 0,
 		    RAM: newDRAM(MEMSIZE, MEMSIZE), tstates: 0, halt: 0};
 	char in;
 	unsigned addr;
+	char filename[256];
+	FILE *file = NULL;
 	do{
 		switch(in){
 			case 'h':
@@ -85,7 +90,7 @@ int main(int argc, char *argv[])
 				singleStep(&cpu);
 				break;
 			case 'r':
-				cpu.AF = 2;
+				cpu.AF = 0x46;
 				cpu.BC = 0;
 				cpu.DE = 0;
 				cpu.HL = 0;
@@ -110,6 +115,26 @@ int main(int argc, char *argv[])
 			case 'e':
 			case 'f':
 				poke(&cpu, in, addr);
+				break;
+			case 'L':
+				echo();
+				mvprintw(17,0,"Load file: ");
+				hline(' ', 80);
+				getnstr(filename, 256);
+				file = fopen(filename, "r");
+				if(!file) mvprintw(17,0,"Error: %s", strerror(errno));
+				else fread(cpu.RAM.RAM, sizeof(uint8_t), (1 << MEMSIZE), file);
+				noecho();
+				break;
+			case 'S':
+				echo();
+				mvprintw(17,0,"Save file: ");
+				hline(' ', 80);
+				getnstr(filename, 256);
+				file = fopen(filename, "w");
+				if(!file) mvprintw(17,0,"Error: %s", strerror(errno));
+				else fwrite(cpu.RAM.RAM, sizeof(uint8_t), (1 << MEMSIZE), file);	
+				noecho();
 				break;
 			default:
 				break;
