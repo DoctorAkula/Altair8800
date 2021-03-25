@@ -16,7 +16,7 @@ void disp8080(i8080 *cpu, int pos)
 		  2, cpu->A,2,cpu->F);
 	mvprintw(3, pos, "B: 0x%0*X C: 0x%0*X",
 		  2, cpu->B,2,cpu->C);0*
-	mvprintw(4, pos, "C: 0x%0*X E: 0x%0*X",
+	mvprintw(4, pos, "D: 0x%0*X E: 0x%0*X",
 		  2, cpu->D,2,cpu->E);
 	mvprintw(5, pos, "H: 0x%0*X L: 0x%0*X",
 		  2, cpu->H,2,cpu->L);
