@@ -8,7 +8,7 @@
 		cpu->SP += 2
 #define JMP	temp = readWRAM(&cpu->RAM, cpu->PC);\
 		cpu->PC = temp
-#define RST(I)  PUSH(cpu->PC + 2);\
+#define RST(I)  PUSH(cpu->PC);\
 		cpu->PC = I * 8
 #define INR(R)	cpu->R++;\
 		cpu->F &= 0b00000011;\
