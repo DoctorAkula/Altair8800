@@ -123,7 +123,10 @@ int main(int argc, char *argv[])
 				getnstr(filename, 256);
 				file = fopen(filename, "r");
 				if(!file) mvprintw(17,0,"Error: %s", strerror(errno));
-				else fread(cpu.RAM.RAM, sizeof(uint8_t), (1 << MEMSIZE), file);
+				else {
+					fread(cpu.RAM.RAM, sizeof(uint8_t), (1 << MEMSIZE), file);
+					fclose(file);
+				}
 				noecho();
 				break;
 			case 'S':
@@ -133,7 +136,10 @@ int main(int argc, char *argv[])
 				getnstr(filename, 256);
 				file = fopen(filename, "w");
 				if(!file) mvprintw(17,0,"Error: %s", strerror(errno));
-				else fwrite(cpu.RAM.RAM, sizeof(uint8_t), (1 << MEMSIZE), file);	
+				else{
+					fwrite(cpu.RAM.RAM, sizeof(uint8_t), (1 << MEMSIZE), file);	
+					fclose(file);
+				}
 				noecho();
 				break;
 			default:
