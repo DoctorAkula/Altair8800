@@ -34,31 +34,37 @@ void panelLogic(FrontPanel *panel, i8080 *cpu)
 			setProt(&cpu->RAM, panel->addr);
 		if(checkDownChange(panel, &oldpanel, Protect))
 			clearProt(&cpu->RAM, panel->addr);
-		if(checkUpChange(panel, &oldpanel, Examine))
+		if(checkUpChange(panel, &oldpanel, Examine)){
 			panel->addr = panel->dataswitches;
+			panel->data = readRAM(&cpu->RAM, panel->addr);
+		}
 		if(checkDownChange(panel, &oldpanel, Examine)){
 			panel->addr++;
 			panel->data = readRAM(&cpu->RAM, panel->addr);
 		}
 		if(checkUpChange(panel, &oldpanel, Deposit)){
 			writeRAM(&cpu->RAM, panel->addr, panel->dataswitches & 0xFF);
+			panel->data = readRAM(&cpu->RAM, panel->addr);
 		}
 		if(checkDownChange(panel, &oldpanel, Deposit)){
 			panel->addr++;
 			writeRAM(&cpu->RAM, panel->addr, panel->dataswitches & 0xFF);
+			panel->data = readRAM(&cpu->RAM, panel->addr);
 		}
 		if(checkUpChange(panel, &oldpanel, Step)){
 			singleStep(cpu);
 			panel->addr = cpu->PC;
+			panel->data = readRAM(&cpu->RAM, panel->addr);
+			if(cpu->halt == 1) panel->addr = ~0;
 		}
 		//if(checkDownChange(panel, &oldpanel, Step));
 		if(checkUpChange(panel, &oldpanel, ResetClr)){
+			cpu->halt = 0;
 			cpu->PC = 0;
 			panel->addr = 0;
 		}
 		//if(checkDownChange(panel, &oldpanel, ResetClr));
 		
-		panel->data = readRAM(&cpu->RAM, panel->addr);
 
 		if(panel->contswitchesdown & StopRun)
 			panel->running = true;
@@ -70,6 +76,8 @@ void panelLogic(FrontPanel *panel, i8080 *cpu)
 		if(panel->running){
 			runCPU(cpu, 2000000 / 60);
 			panel->addr = cpu->PC;
+			panel->data = readRAM(&cpu->RAM, panel->addr);
+			if(cpu->halt == 1) panel->addr = ~0;
 		}
 
 		/*Status light stuff*/
@@ -90,6 +98,7 @@ void panelLogic(FrontPanel *panel, i8080 *cpu)
 		else
 			panel->stat &=~HLTA;
 	}else{
+		cpu->halt = 0;
 		panel->addr = 0;
 		panel->data = 0;
 		panel->stat = 0;

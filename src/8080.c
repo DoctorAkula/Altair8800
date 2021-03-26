@@ -704,6 +704,7 @@ int singleStep(i8080 *cpu)
 		case 0x76:	/*HLT*/
 		cpu->halt = 1;
 		clks = 7;
+		cpu->PC--;
 		cpu->tstates += clks;
 		break;
 		case 0x77:	/*MOV M, A*/

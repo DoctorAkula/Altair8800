@@ -29,6 +29,8 @@ void disp8080(i8080 *cpu, int pos)
 		  4, cpu->SP);
 	mvprintw(8, pos, "T-States: %*d",
 		  10, cpu->tstates);
+	mvprintw(9, pos, "Halted: %d",
+		     cpu->halt);
 }
 
 void dispDRAM(i8080 *cpu, unsigned addr)
@@ -97,6 +99,7 @@ int main(int argc, char *argv[])
 				cpu.SP = 0;
 				cpu.PC = 0;
 				cpu.tstates = 0;
+				cpu.halt = 0;
 				break;
 			case '0': /*Fallthrough*/
 			case '1':
