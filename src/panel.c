@@ -73,10 +73,22 @@ void panelLogic(FrontPanel *panel, i8080 *cpu)
 		}
 
 		/*Status light stuff*/
+		panel->stat |= MI;
+
 		if(readProt(&cpu->RAM, panel->addr))
 			panel->stat |= PROT;
 		else
 			panel->stat &=~PROT;
+
+		if(panel->running)
+			panel->stat &=~WAIT;
+		else
+			panel->stat |= WAIT;
+
+		if(cpu->halt == 1)
+			panel->stat |= HLTA;
+		else
+			panel->stat &=~HLTA;
 	}else{
 		panel->addr = 0;
 		panel->data = 0;
