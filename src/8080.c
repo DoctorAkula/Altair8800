@@ -63,6 +63,7 @@
 
 int singleStep(i8080 *cpu)
 {
+	cpu->halt = 0;
 	int clks;
 	uint32_t temp;
 	uint8_t opcode = readRAM(&cpu->RAM, cpu->PC);
