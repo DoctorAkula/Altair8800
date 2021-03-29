@@ -1243,8 +1243,10 @@ int singleStep(i8080 *cpu)
 		clks = 10;
 		cpu->tstates += clks;
 		break;
-		case 0xd3:	/*TODO*/
-		clks = 4;
+		case 0xd3:	/*OUT D8*/
+		output(readRAM(&cpu->RAM, cpu->PC), cpu->A);
+		cpu->PC++;
+		clks = 10;
 		cpu->tstates += clks;
 		break;
 		case 0xd4:	/*CNC A16*/
@@ -1298,8 +1300,10 @@ int singleStep(i8080 *cpu)
 		clks = 10;
 		cpu->tstates += clks;
 		break;
-		case 0xdb:	/*TODO*/
-		clks = 4;
+		case 0xdb:	/*IN D8*/
+		cpu->A = input(readRAM(&cpu->RAM, cpu->PC));
+		cpu->PC++;
+		clks = 10;
 		cpu->tstates += clks;
 		break;
 		case 0xdc:	/*CC*/

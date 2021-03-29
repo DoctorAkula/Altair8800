@@ -1,6 +1,7 @@
 #ifndef _i8080_
 #define _i8080_
 #include"mem.h"
+#include"io.h"
 
 /*Flag masks*/
 #define SignFlag 0x80 /*Negative while 1*/

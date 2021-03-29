@@ -1,6 +1,7 @@
 #ifndef _MAIN_
 #define _MAIN_
 #include<raylib.h>
+#include"io.h"
 #include"8080.h"
 #include"panel.h"
 #include"mem.h"
