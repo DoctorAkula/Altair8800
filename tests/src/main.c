@@ -165,5 +165,4 @@ int main(int argc, char *argv[])
 		dispDRAM(&cpu, addr);
 	}while((in = getch()) != 'q');
 	endwin();
-#endif	/*OPTEST*/
 }
