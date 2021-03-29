@@ -1468,6 +1468,7 @@ int singleStep(i8080 *cpu)
 		if(!(cpu->F & SignFlag)){
 			JMP;
 		}else cpu->PC += 2;
+		clks = 10;
 		cpu->tstates += clks;
 		break;
 		case 0xf3:	/*TODO*/
@@ -1520,6 +1521,7 @@ int singleStep(i8080 *cpu)
 		if(cpu->F & SignFlag){
 			JMP;
 		}else cpu->PC += 2;
+		clks = 10;
 		cpu->tstates += clks;
 		break;
 		case 0xfb:	/*TODO*/

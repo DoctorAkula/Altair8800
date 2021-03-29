@@ -58,11 +58,24 @@ void poke(i8080 *cpu, char in, unsigned addr)
 
 int main(int argc, char *argv[])
 {
+	i8080 cpu= {A: 0,F: 0x46,BC: 0,DE: 0,HL: 0,SP: 0,PC: 0,
+		    RAM: newDRAM(MEMSIZE, MEMSIZE), tstates: 0, halt: 0};
+
+	/*Run opcode tests*/
+	if(argc > 1){
+		for(int i = 0; i < 256; i++){
+			cpu.tstates = 0;
+			cpu.PC = 0;
+			writeRAM(&cpu.RAM, cpu.PC, i);
+			singleStep(&cpu);
+			printf("op: 0x%X, tstates: %d, PC: 0x%X\n", i, cpu.tstates, cpu.PC);
+		}
+	}
+
 	WINDOW *win = initscr();
 	cbreak();
 	noecho();
-	i8080 cpu= {A: 0,F: 0x46,BC: 0,DE: 0,HL: 0,SP: 0,PC: 0,
-		    RAM: newDRAM(MEMSIZE, MEMSIZE), tstates: 0, halt: 0};
+
 	char in;
 	unsigned addr;
 	char filename[256];
@@ -152,4 +165,5 @@ int main(int argc, char *argv[])
 		dispDRAM(&cpu, addr);
 	}while((in = getch()) != 'q');
 	endwin();
+#endif	/*OPTEST*/
 }
