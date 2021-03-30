@@ -25,25 +25,25 @@ void panelLogic(FrontPanel *panel, i8080 *cpu)
 		/*Power switch stuff*/
 		if(!oldpanel.power){
 			panel->addr = rand();
-			int size = 1 << (cpu->RAM.addrSize - 2);
+			int size = 1 << (cpu->RAM->addrSize - 2);
 			for(int i = 0; i < size; i++)
-				((int*)cpu->RAM.RAM)[i] = rand();
+				((int*)cpu->RAM->RAM)[i] = rand();
 		}
 		/*Control switch stuff*/
 		if(checkUpChange(panel, &oldpanel, Protect))
-			setProt(&cpu->RAM, panel->addr);
+			setProt(cpu->RAM, panel->addr);
 		if(checkDownChange(panel, &oldpanel, Protect))
-			clearProt(&cpu->RAM, panel->addr);
+			clearProt(cpu->RAM, panel->addr);
 		if(checkUpChange(panel, &oldpanel, Examine)){
 			panel->addr = panel->dataswitches;
 		}
 		if(checkDownChange(panel, &oldpanel, Examine))
 			panel->addr++;
 		if(checkUpChange(panel, &oldpanel, Deposit))
-			writeRAM(&cpu->RAM, panel->addr, panel->dataswitches & 0xFF);
+			writeRAM(cpu->RAM, panel->addr, panel->dataswitches & 0xFF);
 		if(checkDownChange(panel, &oldpanel, Deposit)){
 			panel->addr++;
-			writeRAM(&cpu->RAM, panel->addr, panel->dataswitches & 0xFF);
+			writeRAM(cpu->RAM, panel->addr, panel->dataswitches & 0xFF);
 		}
 		if(checkUpChange(panel, &oldpanel, Step)){
 			singleStep(cpu);
@@ -67,7 +67,7 @@ void panelLogic(FrontPanel *panel, i8080 *cpu)
 			panel->addr = cpu->PC;
 		}
 
-		panel->data = readRAM(&cpu->RAM, panel->addr);
+		panel->data = readRAM(cpu->RAM, panel->addr);
 
 		/*Running stuff*/
 		if(panel->running){
@@ -77,7 +77,7 @@ void panelLogic(FrontPanel *panel, i8080 *cpu)
 				panel->data = 0x76;
 			}else{
 				panel->addr = cpu->PC;
-				panel->data = readRAM(&cpu->RAM, panel->addr);
+				panel->data = readRAM(cpu->RAM, panel->addr);
 			}
 		}
 
@@ -85,7 +85,7 @@ void panelLogic(FrontPanel *panel, i8080 *cpu)
 		/*Status light stuff*/
 		panel->stat |= MI;
 
-		if(readProt(&cpu->RAM, panel->addr))
+		if(readProt(cpu->RAM, panel->addr))
 			panel->stat |= PROT;
 		else
 			panel->stat &=~PROT;

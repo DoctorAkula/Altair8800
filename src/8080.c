@@ -3,10 +3,10 @@
 
 /*Returns amount of tstates*/
 /*helpful macros*/
-#define PUSH(ITEM) writeWRAM(&cpu->RAM, cpu->SP -= 2, ITEM)
-#define POP 	readWRAM(&cpu->RAM, cpu->SP);\
+#define PUSH(ITEM) writeWRAM(cpu->RAM, cpu->SP -= 2, ITEM)
+#define POP 	readWRAM(cpu->RAM, cpu->SP);\
 		cpu->SP += 2
-#define JMP	temp = readWRAM(&cpu->RAM, cpu->PC);\
+#define JMP	temp = readWRAM(cpu->RAM, cpu->PC);\
 		cpu->PC = temp
 #define RST(I)  PUSH(cpu->PC);\
 		cpu->PC = I * 8
@@ -66,7 +66,7 @@ int singleStep(i8080 *cpu)
 	cpu->halt = 0;
 	int clks;
 	uint32_t temp;
-	uint8_t opcode = readRAM(&cpu->RAM, cpu->PC);
+	uint8_t opcode = readRAM(cpu->RAM, cpu->PC);
 	cpu->PC++;
 	switch(opcode)
 	{
@@ -75,13 +75,13 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0x1:	/*LXI B, D16*/
-		cpu->BC = readWRAM(&cpu->RAM, cpu->PC);
+		cpu->BC = readWRAM(cpu->RAM, cpu->PC);
 		cpu->PC += 2;
 		clks = 10;
 		cpu->tstates += clks;
 		break;
 		case 0x2:	/*STAX B*/
-		writeRAM(&cpu->RAM, cpu->BC, cpu->A);
+		writeRAM(cpu->RAM, cpu->BC, cpu->A);
 		clks = 7;
 		cpu->tstates += clks;
 		break;
@@ -101,7 +101,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0x6:	/*MVI B, D8*/
-		cpu->B = readRAM(&cpu->RAM, cpu->PC);
+		cpu->B = readRAM(cpu->RAM, cpu->PC);
 		cpu->PC++;
 		clks = 7;
 		cpu->tstates += clks;
@@ -122,7 +122,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0xa:	/*LDAX B*/
-		cpu->A = readRAM(&cpu->RAM, cpu->BC);
+		cpu->A = readRAM(cpu->RAM, cpu->BC);
 		clks = 7;
 		cpu->tstates += clks;
 		break;
@@ -142,7 +142,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0xe:	/*MVI C, D8*/
-		cpu->C = readRAM(&cpu->RAM, cpu->PC);
+		cpu->C = readRAM(cpu->RAM, cpu->PC);
 		cpu->PC++;
 		clks = 7;
 		cpu->tstates += clks;
@@ -158,13 +158,13 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0x11:	/*LXI D, D16*/
-		cpu->DE = readWRAM(&cpu->RAM, cpu->PC);
+		cpu->DE = readWRAM(cpu->RAM, cpu->PC);
 		cpu->PC += 2;
 		clks = 10;
 		cpu->tstates += clks;
 		break;
 		case 0x12:	/*STAX D*/
-		writeRAM(&cpu->RAM, cpu->DE, cpu->A);
+		writeRAM(cpu->RAM, cpu->DE, cpu->A);
 		clks = 7;
 		cpu->tstates += clks;
 		break;
@@ -184,7 +184,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0x16:	/*MVI D, D8*/
-		cpu->D = readRAM(&cpu->RAM, cpu->PC);
+		cpu->D = readRAM(cpu->RAM, cpu->PC);
 		cpu->PC++;
 		clks = 7;
 		cpu->tstates += clks;
@@ -206,7 +206,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0x1a:	/*LDAX D*/
-		cpu->A = readRAM(&cpu->RAM, cpu->DE);
+		cpu->A = readRAM(cpu->RAM, cpu->DE);
 		clks = 7;
 		cpu->tstates += clks;
 		break;
@@ -226,7 +226,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0x1e:	/*MVI E, D8*/
-		cpu->E = readRAM(&cpu->RAM, cpu->PC);
+		cpu->E = readRAM(cpu->RAM, cpu->PC);
 		cpu->PC++;
 		clks = 7;
 		cpu->tstates += clks;
@@ -243,15 +243,15 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0x21:	/*LXI H, D16*/
-		cpu->HL = readWRAM(&cpu->RAM, cpu->PC);
+		cpu->HL = readWRAM(cpu->RAM, cpu->PC);
 		cpu->PC += 2;
 		clks = 10;
 		cpu->tstates += clks;
 		break;
 		case 0x22:	/*SHLD A16*/
-		temp = readWRAM(&cpu->RAM, cpu->PC);
+		temp = readWRAM(cpu->RAM, cpu->PC);
 		cpu->PC += 2;
-		writeWRAM(&cpu->RAM, temp, cpu->HL);
+		writeWRAM(cpu->RAM, temp, cpu->HL);
 		clks = 16;
 		cpu->tstates += clks;
 		break;
@@ -271,7 +271,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0x26:	/*MVI H, D8*/
-		cpu->H = readRAM(&cpu->RAM, cpu->PC);
+		cpu->H = readRAM(cpu->RAM, cpu->PC);
 		cpu->PC++;
 		clks = 7;
 		cpu->tstates += clks;
@@ -304,9 +304,9 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0x2a:	/*LHLD A16*/
-		temp = readWRAM(&cpu->RAM, cpu->PC);
+		temp = readWRAM(cpu->RAM, cpu->PC);
 		cpu->PC += 2;
-		cpu->HL = readWRAM(&cpu->RAM, temp);
+		cpu->HL = readWRAM(cpu->RAM, temp);
 		clks = 16;
 		cpu->tstates += clks;
 		break;
@@ -326,7 +326,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0x2e:	/*MVI L, D8*/
-		cpu->L = readRAM(&cpu->RAM, cpu->PC);
+		cpu->L = readRAM(cpu->RAM, cpu->PC);
 		cpu->PC++;
 		clks = 7;
 		cpu->tstates += clks;
@@ -341,14 +341,14 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0x31:	/*LXI SP, D16*/
-		cpu->SP = readWRAM(&cpu->RAM, cpu->PC);
+		cpu->SP = readWRAM(cpu->RAM, cpu->PC);
 		cpu->PC += 2;
 		clks = 10;
 		cpu->tstates += clks;
 		break;
 		case 0x32:	/*STA A16*/
-		temp = readWRAM(&cpu->RAM, cpu->PC);
-		writeRAM(&cpu->RAM, temp, cpu->A);
+		temp = readWRAM(cpu->RAM, cpu->PC);
+		writeRAM(cpu->RAM, temp, cpu->A);
 		cpu->PC += 2;
 		clks = 13;
 		cpu->tstates += clks;
@@ -359,28 +359,28 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0x34:	/*INR M*/
-		temp = readRAM(&cpu->RAM, cpu->HL);
+		temp = readRAM(cpu->RAM, cpu->HL);
 		temp++;
 		temp &= 0xFF;
 		cpu->F &= 0b00000011;
 		cpu->F |= INR_FLAGS[temp];
-		writeRAM(&cpu->RAM, cpu->HL, temp);
+		writeRAM(cpu->RAM, cpu->HL, temp);
 		clks = 10;
 		cpu->tstates += clks;
 		break;
 		case 0x35:	/*DCR M*/
-		temp = readRAM(&cpu->RAM, cpu->HL);
+		temp = readRAM(cpu->RAM, cpu->HL);
 		temp--;
 		temp &= 0xFF;
 		cpu->F &= 0b00000011;
 		cpu->F |= DCR_FLAGS[temp];
-		writeRAM(&cpu->RAM, cpu->HL, temp);
+		writeRAM(cpu->RAM, cpu->HL, temp);
 		clks = 10;
 		cpu->tstates += clks;
 		break;
 		case 0x36:	/*MVI M, D8*/
-		temp = readRAM(&cpu->RAM, cpu->PC);
-		writeRAM(&cpu->RAM, cpu->HL, temp);
+		temp = readRAM(cpu->RAM, cpu->PC);
+		writeRAM(cpu->RAM, cpu->HL, temp);
 		cpu->PC++;
 		clks = 10;
 		cpu->tstates += clks;
@@ -400,8 +400,8 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0x3a:	/*LDA A16*/
-		temp = readWRAM(&cpu->RAM, cpu->PC);
-		cpu->A = readRAM(&cpu->RAM, temp);
+		temp = readWRAM(cpu->RAM, cpu->PC);
+		cpu->A = readRAM(cpu->RAM, temp);
 		cpu->PC += 2;
 		clks = 13;
 		cpu->tstates += clks;
@@ -422,7 +422,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0x3e:	/*MVI A, D8*/
-		cpu->A = readRAM(&cpu->RAM, cpu->PC);
+		cpu->A = readRAM(cpu->RAM, cpu->PC);
 		cpu->PC++;
 		clks = 7;
 		cpu->tstates += clks;
@@ -463,7 +463,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0x46:	/*MOV B, M*/
-		cpu->B = readRAM(&cpu->RAM, cpu->HL);;
+		cpu->B = readRAM(cpu->RAM, cpu->HL);;
 		clks = 7;
 		cpu->tstates += clks;
 		break;
@@ -503,7 +503,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0x4e:	/*MOV C, M*/
-		cpu->C = readRAM(&cpu->RAM, cpu->HL);;
+		cpu->C = readRAM(cpu->RAM, cpu->HL);;
 		clks = 7;
 		cpu->tstates += clks;
 		break;
@@ -543,7 +543,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0x56:	/*MOV D, M*/
-		cpu->D = readRAM(&cpu->RAM, cpu->HL);;
+		cpu->D = readRAM(cpu->RAM, cpu->HL);;
 		clks = 7;
 		cpu->tstates += clks;
 		break;
@@ -583,7 +583,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0x5e:	/*MOV E, M*/
-		cpu->E = readRAM(&cpu->RAM, cpu->HL);;
+		cpu->E = readRAM(cpu->RAM, cpu->HL);;
 		clks = 7;
 		cpu->tstates += clks;
 		break;
@@ -623,7 +623,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0x66:	/*MOV H, M*/
-		cpu->H = readRAM(&cpu->RAM, cpu->HL);;
+		cpu->H = readRAM(cpu->RAM, cpu->HL);;
 		clks = 5;
 		cpu->tstates += clks;
 		break;
@@ -663,7 +663,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0x6e:	/*MOV L, M*/
-		cpu->L = readRAM(&cpu->RAM, cpu->HL);;
+		cpu->L = readRAM(cpu->RAM, cpu->HL);;
 		clks = 5;
 		cpu->tstates += clks;
 		break;
@@ -673,32 +673,32 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0x70:	/*MOV M, B*/
-		writeRAM(&cpu->RAM, cpu->HL, cpu->B);
+		writeRAM(cpu->RAM, cpu->HL, cpu->B);
 		clks = 7;
 		cpu->tstates += clks;
 		break;
 		case 0x71:	/*MOV M, C*/
-		writeRAM(&cpu->RAM, cpu->HL, cpu->C);
+		writeRAM(cpu->RAM, cpu->HL, cpu->C);
 		clks = 7;
 		cpu->tstates += clks;
 		break;
 		case 0x72:	/*MOV M, D*/
-		writeRAM(&cpu->RAM, cpu->HL, cpu->D);
+		writeRAM(cpu->RAM, cpu->HL, cpu->D);
 		clks = 7;
 		cpu->tstates += clks;
 		break;
 		case 0x73:	/*MOV M, E*/
-		writeRAM(&cpu->RAM, cpu->HL, cpu->E);
+		writeRAM(cpu->RAM, cpu->HL, cpu->E);
 		clks = 7;
 		cpu->tstates += clks;
 		break;
 		case 0x74:	/*MOV M, H*/
-		writeRAM(&cpu->RAM, cpu->HL, cpu->H);
+		writeRAM(cpu->RAM, cpu->HL, cpu->H);
 		clks = 7;
 		cpu->tstates += clks;
 		break;
 		case 0x75:	/*MOV M, L*/
-		writeRAM(&cpu->RAM, cpu->HL, cpu->L);
+		writeRAM(cpu->RAM, cpu->HL, cpu->L);
 		clks = 7;
 		cpu->tstates += clks;
 		break;
@@ -709,7 +709,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0x77:	/*MOV M, A*/
-		writeRAM(&cpu->RAM, cpu->HL, cpu->A);
+		writeRAM(cpu->RAM, cpu->HL, cpu->A);
 		clks = 7;
 		cpu->tstates += clks;
 		break;
@@ -744,7 +744,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0x7e:	/*MOV A, M*/
-		cpu->A = readRAM(&cpu->RAM, cpu->HL);;
+		cpu->A = readRAM(cpu->RAM, cpu->HL);;
 		clks = 5;
 		cpu->tstates += clks;
 		break;
@@ -784,7 +784,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0x86:	/*ADD M*/
-		temp = readRAM(&cpu->RAM, cpu->HL);
+		temp = readRAM(cpu->RAM, cpu->HL);
 		cpu->F &= 0b00000010;
 		cpu->F |= (temp + cpu->A) >> 8;
 		cpu->F |= ((temp & 0xF) + (cpu->A & 0xF) & 0x10);
@@ -829,7 +829,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0x8e:	/*ADC M*/
-		temp = readRAM(&cpu->RAM, cpu->HL);
+		temp = readRAM(cpu->RAM, cpu->HL);
 		temp = (cpu->F & CaryFlag) ? temp + 1 : temp;
 		cpu->F &= 0b00000010;
 		cpu->F |= (temp + cpu->A) >> 8;
@@ -875,7 +875,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0x96:	/*SUB M*/
-		temp = readRAM(&cpu->RAM, cpu->HL);
+		temp = readRAM(cpu->RAM, cpu->HL);
 		cpu->F &= 0b00000010;
 		cpu->F |= (cpu->A - temp) >> 8 & 0x1;
 		cpu->F |= ((cpu->A & 0xF) - (temp & 0xF) & 0x10);
@@ -920,7 +920,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0x9e:	/*SBB M*/
-		temp = readRAM(&cpu->RAM, cpu->HL);
+		temp = readRAM(cpu->RAM, cpu->HL);
 		temp = (cpu->F & CaryFlag) ? temp + 1 : temp;
 		cpu->F &= 0b00000010;
 		cpu->F |= (cpu->A - temp) >> 8 & 0x1;
@@ -966,7 +966,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0xa6:	/*ANA M*/
-		temp = readRAM(&cpu->RAM, cpu->HL);
+		temp = readRAM(cpu->RAM, cpu->HL);
 		cpu->F &= 0b00000010;
 		cpu->F |= ((cpu->A | temp) & 0x8) << 1; //Aux carry is equal to OR of bit 3 of operand and accumulator
 		cpu->A &= temp;
@@ -1010,7 +1010,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0xae:	/*XRA M*/
-		temp = readRAM(&cpu->RAM, cpu->HL);
+		temp = readRAM(cpu->RAM, cpu->HL);
 		cpu->F &= 0b00000010;
 		cpu->A ^= temp;
 		cpu->F |= SZP_FLAGS[cpu->A];
@@ -1053,7 +1053,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0xb6:	/*ORA M*/
-		temp = readRAM(&cpu->RAM, cpu->HL);
+		temp = readRAM(cpu->RAM, cpu->HL);
 		cpu->F &= 0b00000010;
 		cpu->A |= temp;
 		cpu->F |= SZP_FLAGS[cpu->A];
@@ -1096,7 +1096,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0xbe:	/*CMP M*/
-		temp = readRAM(&cpu->RAM, cpu->PC);
+		temp = readRAM(cpu->RAM, cpu->PC);
 		cpu->F &= 0b00000010;
 		cpu->F |= (cpu->A - temp) >> 8 & 0x1;
 		cpu->F |= ((cpu->A & 0xF) - (temp & 0xF) & 0x10);
@@ -1150,7 +1150,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0xc6:	/*ADI D8*/
-		temp = readRAM(&cpu->RAM, cpu->PC);
+		temp = readRAM(cpu->RAM, cpu->PC);
 		cpu->F &= 0b00000010;
 		cpu->F |= (temp + cpu->A) >> 8;
 		cpu->F |= ((temp & 0xF) + (cpu->A & 0xF) & 0x10);
@@ -1207,7 +1207,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0xce:	/*ACI D8*/
-		temp = readRAM(&cpu->RAM, cpu->PC);
+		temp = readRAM(cpu->RAM, cpu->PC);
 		temp = (cpu->F & CaryFlag) ? temp + 1 : temp;
 		cpu->F &= 0b00000010;
 		cpu->F |= (temp + cpu->A) >> 8;
@@ -1244,7 +1244,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0xd3:	/*OUT D8*/
-		output(readRAM(&cpu->RAM, cpu->PC), cpu->A);
+		output(readRAM(cpu->RAM, cpu->PC), cpu->A);
 		cpu->PC++;
 		clks = 10;
 		cpu->tstates += clks;
@@ -1265,7 +1265,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0xd6:	/*SUI D8*/
-		temp = readRAM(&cpu->RAM, cpu->PC);
+		temp = readRAM(cpu->RAM, cpu->PC);
 		cpu->F &= 0b00000010;
 		cpu->F |= (cpu->A - temp) >> 8 & 0x1;
 		cpu->F |= ((cpu->A & 0xF) - (temp & 0xF) & 0x10);
@@ -1301,7 +1301,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0xdb:	/*IN D8*/
-		cpu->A = input(readRAM(&cpu->RAM, cpu->PC));
+		cpu->A = input(readRAM(cpu->RAM, cpu->PC));
 		cpu->PC++;
 		clks = 10;
 		cpu->tstates += clks;
@@ -1322,7 +1322,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0xde:	/*SBI D8*/
-		temp = readRAM(&cpu->RAM, cpu->PC);
+		temp = readRAM(cpu->RAM, cpu->PC);
 		temp = (cpu->F & CaryFlag) ? temp + 1 : temp;
 		cpu->F &= 0b00000010;
 		cpu->F |= (cpu->A - temp) >> 8 & 0x1;
@@ -1359,8 +1359,8 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0xe3:	/*XTHL*/
-		temp = readWRAM(&cpu->RAM, cpu->SP);
-		writeWRAM(&cpu->RAM, cpu->SP, cpu->HL);
+		temp = readWRAM(cpu->RAM, cpu->SP);
+		writeWRAM(cpu->RAM, cpu->SP, cpu->HL);
 		cpu->HL = temp;
 		clks = 18;
 		cpu->tstates += clks;
@@ -1381,7 +1381,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0xe6:	/*ANI D8*/
-		temp = readRAM(&cpu->RAM, cpu->PC);
+		temp = readRAM(cpu->RAM, cpu->PC);
 		cpu->F &= 0b00000010;
 		cpu->F |= ((cpu->A | temp) & 0x8) << 1; //Aux carry is equal to OR of bit 3 of operand and accumulator
 		cpu->A &= temp;
@@ -1439,7 +1439,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0xee:	/*XRI D8*/
-		temp = readRAM(&cpu->RAM, cpu->PC);
+		temp = readRAM(cpu->RAM, cpu->PC);
 		cpu->F &= 0b00000010;
 		cpu->A ^= temp;
 		cpu->F |= SZP_FLAGS[cpu->A];
@@ -1491,7 +1491,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0xf6:	/*ORI D8*/
-		temp = readRAM(&cpu->RAM, cpu->PC);
+		temp = readRAM(cpu->RAM, cpu->PC);
 		cpu->F &= 0b00000010;
 		cpu->A |= temp;
 		cpu->F |= SZP_FLAGS[cpu->A];
@@ -1545,7 +1545,7 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0xfe:	/*CPI D8*/
-		temp = readRAM(&cpu->RAM, cpu->PC);
+		temp = readRAM(cpu->RAM, cpu->PC);
 		cpu->F &= 0b00000010;
 		cpu->F |= (cpu->A - temp) >> 8 & 0x1;
 		cpu->F |= ((cpu->A & 0xF) - (temp & 0xF) & 0x10);

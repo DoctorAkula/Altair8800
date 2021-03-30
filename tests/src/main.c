@@ -7,6 +7,7 @@
 #include"mem.h"
 
 #define MEMSIZE 8
+dedicatedRAM mainMemory;
 
 void disp8080(i8080 *cpu, int pos)
 {
@@ -41,7 +42,7 @@ void dispDRAM(i8080 *cpu, unsigned addr)
 		if(i == addr) attron(A_UNDERLINE);
 		else attroff(A_UNDERLINE);
 		mvprintw(i >> 4, (i & 0xF) * 3,
-			 "%0*X", 2, readRAM(&cpu->RAM, i));
+			 "%0*X", 2, readRAM(cpu->RAM, i));
 	}
 	attroff(A_UNDERLINE);
 	attroff(A_REVERSE);
@@ -52,21 +53,22 @@ void poke(i8080 *cpu, char in, unsigned addr)
 	unsigned val;
 	if(('0' <= in) && (in <= '9')) val = in - '0';
 	else val = in - 'a' + 10;
-	unsigned data = (readRAM(&cpu->RAM, addr) << 4) & 0xFF;
-	writeRAM(&cpu->RAM, addr, data | val);
+	unsigned data = (readRAM(cpu->RAM, addr) << 4) & 0xFF;
+	writeRAM(cpu->RAM, addr, data | val);
 }
 
 int main(int argc, char *argv[])
 {
+	mainMemory = newDRAM(MEMSIZE, MEMSIZE);
 	i8080 cpu= {A: 0,F: 0x46,BC: 0,DE: 0,HL: 0,SP: 0,PC: 0,
-		    RAM: newDRAM(MEMSIZE, MEMSIZE), tstates: 0, halt: 0};
+		    RAM: &mainMemory, tstates: 0, halt: 0};
 
 	/*Run opcode tests*/
 	if(argc > 1){
 		for(int i = 0; i < 256; i++){
 			cpu.tstates = 0;
 			cpu.PC = 0;
-			writeRAM(&cpu.RAM, cpu.PC, i);
+			writeRAM(cpu.RAM, cpu.PC, i);
 			singleStep(&cpu);
 			printf("op: 0x%X, tstates: %d, PC: 0x%X\n", i, cpu.tstates, cpu.PC);
 		}
@@ -140,7 +142,7 @@ int main(int argc, char *argv[])
 				file = fopen(filename, "r");
 				if(!file) mvprintw(17,0,"Error: %s", strerror(errno));
 				else {
-					fread(cpu.RAM.RAM, sizeof(uint8_t), (1 << MEMSIZE), file);
+					fread(cpu.RAM->RAM, sizeof(uint8_t), (1 << MEMSIZE), file);
 					fclose(file);
 				}
 				noecho();
@@ -153,7 +155,7 @@ int main(int argc, char *argv[])
 				file = fopen(filename, "w");
 				if(!file) mvprintw(17,0,"Error: %s", strerror(errno));
 				else{
-					fwrite(cpu.RAM.RAM, sizeof(uint8_t), (1 << MEMSIZE), file);	
+					fwrite(cpu.RAM->RAM, sizeof(uint8_t), (1 << MEMSIZE), file);	
 					fclose(file);
 				}
 				noecho();

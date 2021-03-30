@@ -38,7 +38,7 @@ typedef struct i8080{
 	};};
 	uint16_t SP;
 	uint16_t PC;
-	dedicatedRAM RAM;
+	dedicatedRAM *RAM;
 	uint64_t tstates;
 	uint8_t halt;
 }i8080;
