@@ -9,8 +9,8 @@ uint8_t null_in(void)
 
 void (*ioOut[256])(uint8_t) =
 {
-	pipeOut,	/*Port 0x0*/
-	null_out,	/*Port 0x1*/
+	fileOut,	/*Port 0x0*/
+	fileCtl,	/*Port 0x1*/
 	null_out,	/*Port 0x2*/
 	null_out,	/*Port 0x3*/
 	null_out,	/*Port 0x4*/
@@ -269,8 +269,8 @@ void (*ioOut[256])(uint8_t) =
 
 uint8_t (*ioIn[256])(void) =
 {
-	pipeIn,		/*Port 0x0*/
-	null_in,	/*Port 0x1*/
+	fileIn,		/*Port 0x0*/
+	fileState,	/*Port 0x1*/
 	null_in,	/*Port 0x2*/
 	null_in,	/*Port 0x3*/
 	null_in,	/*Port 0x4*/

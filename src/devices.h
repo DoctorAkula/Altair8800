@@ -2,7 +2,9 @@
 #define _DEVICES_
 #include<stdint.h>
 
-void pipeOut(uint8_t data);
-uint8_t pipeIn(void);
+void fileOut(uint8_t data);
+uint8_t fileIn(void);
+uint8_t fileState(void);
+void fileCtl(uint8_t data);
 
 #endif /*_DEVICES_*/
