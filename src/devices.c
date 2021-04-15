@@ -6,6 +6,37 @@
 #include"mem.h"
 extern dedicatedRAM mainMemory;
 
+/*FILE IO DEVICES
+ *These devices allow IO on external files
+ *File ctl is used to select a file
+ *The first byte sent to file ctl is the opcode
+ *There are 8 opcodes ranging from 0-7, listed with mnemonics below:
+
+ *0 OPN: This will open a file using the given mode-
+ *and file name string. If a file is already open, it will be closed.
+ *If any errors are encountered they will be written to RAM pointed by error string.
+
+ *1 CLS: This will close the currently open file.
+
+ *2 SKS: This takes a one byte opcode that is the
+ *Seek distance in bytes from the start of the opened file.
+
+ *3 SKC: This takes a one byte opcode that is the
+ *Seek distance in bytes from the current place of the opened file.
+
+ *4 SKS: This takes a one byte opcode that is the
+ *Seek distance in bytes from the end of the opened file.
+
+ *5 SPA: This takes a two bye opcode that is the address
+ *In RAM where the ASCIIZ path string is stored.
+
+ *6 SMA: This takes a two bye opcode that is the address
+ *In RAM where the ASCIIZ mode string is stored.
+
+ *7 SEA: This takes a two bye opcode that is the address
+ *In RAM where the ASCIIZ error string is stored.
+ */
+
 /*File IO vars*/
 static FILE *iofile = NULL;	/*Contains the currently opened file*/
 static int fileModeAddr = 0;	/*Contains the address to the file mode string in RAM*/
@@ -120,3 +151,4 @@ uint8_t fileState(void)
 		return fileCtlState;
 	}
 }
+/*End of file IO devices*/
