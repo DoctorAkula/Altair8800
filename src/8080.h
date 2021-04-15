@@ -41,8 +41,10 @@ typedef struct i8080{
 	dedicatedRAM *RAM;
 	uint64_t tstates;
 	uint8_t halt;
+	uint8_t inte;
 }i8080;
 
+void setInterruptPending(uint8_t busAssert);
 int singleStep(i8080 *cpu);
 void runCPU(i8080 *cpu, int freq);
 #endif /*_i8080_*/

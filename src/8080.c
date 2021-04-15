@@ -1,6 +1,11 @@
 #include"8080.h"
 #include"flags.h"
 
+/*1 if there is a pending interrupt, 0 if not*/
+static uint8_t intteruptPending = 0;
+/*Opcode placed on the data bus by interrupting device*/
+static uint8_t devOpcode = 0;
+
 /*Returns amount of tstates*/
 /*helpful macros*/
 #define PUSH(ITEM) writeWRAM(cpu->RAM, cpu->SP -= 2, ITEM)
@@ -60,14 +65,26 @@
 		cpu->F |= temp >> 8 & 0x1;\
 		cpu->F |= ((cpu->A & 0xF) - (cpu->R & 0xF) & 0x10);\
 		cpu->F |= SZP_FLAGS[(uint8_t)temp]
+void setInterruptPending(uint8_t busAssert)
+{
+	intteruptPending = 1;
+	devOpcode = busAssert;
+}
 
 int singleStep(i8080 *cpu)
 {
 	cpu->halt = 0;
 	int clks;
 	uint32_t temp;
-	uint8_t opcode = readRAM(cpu->RAM, cpu->PC);
-	cpu->PC++;
+	uint8_t opcode;
+	if(cpu->inte && intteruptPending){
+		cpu->inte = 0;
+		intteruptPending = 0;
+		opcode = devOpcode;
+	}else{
+		opcode = readRAM(cpu->RAM, cpu->PC);
+		cpu->PC++;
+	}
 	switch(opcode)
 	{
 		case 0x0:	/*NOP*/
@@ -1471,7 +1488,8 @@ int singleStep(i8080 *cpu)
 		clks = 10;
 		cpu->tstates += clks;
 		break;
-		case 0xf3:	/*TODO*/
+		case 0xf3:	/*DI*/
+		cpu->inte = 0;
 		clks = 4;
 		cpu->tstates += clks;
 		break;
@@ -1524,7 +1542,8 @@ int singleStep(i8080 *cpu)
 		clks = 10;
 		cpu->tstates += clks;
 		break;
-		case 0xfb:	/*TODO*/
+		case 0xfb:	/*EI*/
+		cpu->inte = 1;
 		clks = 4;
 		cpu->tstates += clks;
 		break;

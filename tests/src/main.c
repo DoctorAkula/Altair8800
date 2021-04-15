@@ -32,6 +32,8 @@ void disp8080(i8080 *cpu, int pos)
 		  10, cpu->tstates);
 	mvprintw(9, pos, "Halted: %d",
 		     cpu->halt);
+	mvprintw(9, pos, "Interrupt Enabled: %d",
+		     cpu->inte);
 }
 
 void dispDRAM(i8080 *cpu, unsigned addr)
@@ -80,7 +82,7 @@ int main(int argc, char *argv[])
 
 	char in;
 	unsigned addr;
-	char filename[256];
+	char textinput[256];
 	FILE *file = NULL;
 	do{
 		switch(in){
@@ -115,6 +117,7 @@ int main(int argc, char *argv[])
 				cpu.PC = 0;
 				cpu.tstates = 0;
 				cpu.halt = 0;
+				cpu.inte = 0;
 				break;
 			case '0': /*Fallthrough*/
 			case '1':
@@ -138,8 +141,8 @@ int main(int argc, char *argv[])
 				echo();
 				mvprintw(17,0,"Load file: ");
 				hline(' ', 80);
-				getnstr(filename, 256);
-				file = fopen(filename, "r");
+				getnstr(textinput, 256);
+				file = fopen(textinput, "r");
 				if(!file) mvprintw(17,0,"Error: %s", strerror(errno));
 				else {
 					fread(cpu.RAM->RAM, sizeof(uint8_t), (1 << MEMSIZE), file);
@@ -151,8 +154,8 @@ int main(int argc, char *argv[])
 				echo();
 				mvprintw(17,0,"Save file: ");
 				hline(' ', 80);
-				getnstr(filename, 256);
-				file = fopen(filename, "w");
+				getnstr(textinput, 256);
+				file = fopen(textinput, "w");
 				if(!file) mvprintw(17,0,"Error: %s", strerror(errno));
 				else{
 					fwrite(cpu.RAM->RAM, sizeof(uint8_t), (1 << MEMSIZE), file);	
@@ -160,6 +163,14 @@ int main(int argc, char *argv[])
 				}
 				noecho();
 				break;
+			case 'i':
+				echo();
+				mvprintw(17,0,"Interrupt number (0-7): ");
+				hline(' ', 80);
+				getnstr(textinput, 256);
+				int inum = atoi(textinput) & 7;
+				noecho();
+				setInterruptPending(0xC7 + 8 * inum);
 			default:
 				break;
 		}
