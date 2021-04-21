@@ -2,7 +2,7 @@
 #include"flags.h"
 
 /*1 if there is a pending interrupt, 0 if not*/
-static uint8_t intteruptPending = 0;
+static uint8_t interruptPending = 0;
 /*Opcode placed on the data bus by interrupting device*/
 static uint8_t devOpcode = 0;
 
@@ -67,7 +67,7 @@ static uint8_t devOpcode = 0;
 		cpu->F |= SZP_FLAGS[(uint8_t)temp]
 void setInterruptPending(uint8_t busAssert)
 {
-	intteruptPending = 1;
+	interruptPending = 1;
 	devOpcode = busAssert;
 }
 
@@ -77,9 +77,9 @@ int singleStep(i8080 *cpu)
 	int clks;
 	uint32_t temp;
 	uint8_t opcode;
-	if(cpu->inte && intteruptPending){
+	if(cpu->inte && interruptPending){
 		cpu->inte = 0;
-		intteruptPending = 0;
+		interruptPending = 0;
 		opcode = devOpcode;
 	}else{
 		opcode = readRAM(cpu->RAM, cpu->PC);

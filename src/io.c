@@ -11,7 +11,7 @@ void (*ioOut[256])(uint8_t) =
 {
 	fileOut,	/*Port 0x0*/
 	fileCtl,	/*Port 0x1*/
-	null_out,	/*Port 0x2*/
+	setTimer,	/*Port 0x2*/
 	null_out,	/*Port 0x3*/
 	null_out,	/*Port 0x4*/
 	null_out,	/*Port 0x5*/
@@ -271,7 +271,7 @@ uint8_t (*ioIn[256])(void) =
 {
 	fileIn,		/*Port 0x0*/
 	fileState,	/*Port 0x1*/
-	null_in,	/*Port 0x2*/
+	getTimer,	/*Port 0x2*/
 	null_in,	/*Port 0x3*/
 	null_in,	/*Port 0x4*/
 	null_in,	/*Port 0x5*/

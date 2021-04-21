@@ -1,7 +1,10 @@
 #include<errno.h>
+#include<signal.h>
 #include<string.h>
 #include<stdio.h>
+#include<time.h>
 
+#include"8080.h"
 #include"devices.h"
 #include"mem.h"
 extern dedicatedRAM mainMemory;
@@ -24,7 +27,7 @@ extern dedicatedRAM mainMemory;
  *3 SKC: This takes a one byte opcode that is the
  *Seek distance in bytes from the current place of the opened file.
 
- *4 SKS: This takes a one byte opcode that is the
+ *4 SKE: This takes a one byte opcode that is the
  *Seek distance in bytes from the end of the opened file.
 
  *5 SPA: This takes a two bye opcode that is the address
@@ -152,3 +155,70 @@ uint8_t fileState(void)
 	}
 }
 /*End of file IO devices*/
+
+/*INTERRUPT TIMER
+ *A controllabe periodic timer interrupt device
+ *This device allows a frequency range between 0-31 hertz
+ *And setting which RST instruction to assert the bus with
+ *MSB on the left, LSB on the right:
+ *Data byte: 00000	000
+ *           Hertz	RST
+ *setTimer sets this data byte
+ *getTimer gets this data byte
+ */
+
+static uint8_t timerByte = 0;
+static uint8_t rstOP = 0xC7;
+
+static void timerInterrupt(int sig)
+{
+	setInterruptPending(rstOP);
+}
+
+void setTimer(uint8_t data)
+{
+	static int timercreated = 0;
+	static timer_t timer;
+
+	rstOP = 0xC7 + 8 * (data & 7);
+
+	int ret;
+	if(!timercreated){
+		struct sigevent sevp =
+		{
+			SIGEV_SIGNAL,
+			SIGUSR1,
+		};
+		ret = timer_create(CLOCK_MONOTONIC, &sevp, &timer);
+		if(ret) perror("Failed to create timer");
+		else timercreated = 1;
+		signal(SIGUSR1, timerInterrupt);
+	}
+
+	struct itimerspec freq = {
+		(struct timespec){
+			0, 1000000000
+		}, 
+		(struct timespec){
+			0, 1
+		}
+	};
+
+	if(!(data & 0xF8)){
+		freq.it_interval.tv_nsec = 0;
+		freq.it_value.tv_nsec = 0;
+	}else if((data & 0xF8) == (1 << 3)){
+		freq.it_interval.tv_nsec = 0;
+		freq.it_interval.tv_sec = 1;
+	}else	freq.it_interval.tv_nsec /= (data >> 3);
+
+	ret = timer_settime(timer, 0, &freq, NULL);
+	if(ret) perror("Failed to start timer");
+
+	timerByte = data;
+}
+
+uint8_t getTimer(void)
+{
+	return timerByte;
+}
