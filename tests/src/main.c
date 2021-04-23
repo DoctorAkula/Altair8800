@@ -118,6 +118,7 @@ int main(int argc, char *argv[])
 				cpu.tstates = 0;
 				cpu.halt = 0;
 				cpu.inte = 0;
+				stopTimer();
 				break;
 			case '0': /*Fallthrough*/
 			case '1':

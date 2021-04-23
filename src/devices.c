@@ -167,6 +167,7 @@ uint8_t fileState(void)
  *getTimer gets this data byte
  */
 
+static timer_t timer;
 static uint8_t timerByte = 0;
 static uint8_t rstOP = 0xC7;
 
@@ -175,10 +176,22 @@ static void timerInterrupt(int sig)
 	setInterruptPending(rstOP);
 }
 
+int stopTimer()
+{
+	struct itimerspec freq = {
+		(struct timespec){
+			0, 0
+		}, 
+		(struct timespec){
+			0, 0
+		}
+	};
+	return timer_settime(timer, 0, &freq, NULL);
+}
+
 void setTimer(uint8_t data)
 {
 	static int timercreated = 0;
-	static timer_t timer;
 
 	rstOP = 0xC7 + 8 * (data & 7);
 

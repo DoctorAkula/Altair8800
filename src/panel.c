@@ -56,9 +56,14 @@ void panelLogic(FrontPanel *panel, i8080 *cpu)
 			cpu->PC = 0;
 			panel->addr = 0;
 		}
-		//if(checkDownChange(panel, &oldpanel, ResetClr));
-		
 
+		if(checkDownChange(panel, &oldpanel, ResetClr)){
+			cpu->halt = 0;
+			cpu->PC = 0;
+			panel->addr = 0;
+			stopTimer();
+		}
+		
 		if(panel->contswitchesdown & StopRun)
 			panel->running = true;
 
@@ -105,6 +110,7 @@ void panelLogic(FrontPanel *panel, i8080 *cpu)
 		panel->data = 0;
 		panel->stat = 0;
 		panel->running = false;
+		stopTimer();
 	}
 	oldpanel = *panel;
 }

@@ -132,8 +132,8 @@ int main(int argc, char *argv[])
 	Texture2D textures[ilength];
 	FrontPanel panel = {0,0,0,0,0,0,false,false};
 	mainMemory = newDRAM(16, 8);
-	i8080 cpu = {A: 0,F: 0,BC: 0,DE: 0,HL: 0,SP: 0,PC: 0,
-		    RAM: &mainMemory, tstates: 0, halt: 0};
+	i8080 cpu = {AF: 0, BC: 0, DE: 0, HL: 0, SP: 0, PC: 0,
+		    RAM: &mainMemory, tstates: 0, halt: 0, inte: 0};
 	for(int i = 0; i < slength; i++)
 		sounds[i] = LoadSound(soundfiles[i]);
 	for(int i = 0; i < ilength; i++)
