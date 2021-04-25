@@ -1,5 +1,4 @@
 #include"main.h"
-dedicatedRAM mainMemory;
 
 void drawSwitchesAndLights(FrontPanel panel, Texture2D *textures)
 {
@@ -134,7 +133,21 @@ int main(int argc, char *argv[])
 	mainMemory = newDRAM(16, 8);
 	i8080 cpu = {AF: 0, BC: 0, DE: 0, HL: 0, SP: 0, PC: 0,
 		    RAM: &mainMemory, tstates: 0, halt: 0, inte: 0};
-	for(int i = 0; i < slength; i++)
+	if(argc == 2){
+		FILE *binfile = fopen(argv[1], "rb");
+		if(!binfile){
+			perror("Cant open ROM file");
+			goto skip;
+		}
+		fseek(binfile, 0, SEEK_END);
+		uint16_t len = ftell(binfile);
+		rewind(binfile);
+		uint8_t *tmprom = calloc(len, sizeof(uint8_t));
+		fread(tmprom, sizeof(uint8_t), len, binfile);
+		fclose(binfile);
+		setROM(tmprom, len);
+	}
+skip:	for(int i = 0; i < slength; i++)
 		sounds[i] = LoadSound(soundfiles[i]);
 	for(int i = 0; i < ilength; i++)
 		images[i] = LoadImage(imagefiles[i]);
@@ -169,4 +182,5 @@ int main(int argc, char *argv[])
 	}
 	/*Main Loop End*/
 	freeDRAM(cpu.RAM);
+	freeROM();
 }

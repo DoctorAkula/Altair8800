@@ -10,6 +10,9 @@ typedef struct dedicatedRAM{
 	uint8_t *prot; 		/*Memory protected flag buffer*/
 }dedicatedRAM;
 
+void freeROM();
+void setROM(uint8_t *pointer, uint16_t len);
+void loadRAM(dedicatedRAM *RAM);
 dedicatedRAM newDRAM(int MemSize, int PageSize);
 void freeDRAM(dedicatedRAM *RAM);
 void setProt(dedicatedRAM *RAM, uint16_t addr);

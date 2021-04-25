@@ -62,6 +62,8 @@ void panelLogic(FrontPanel *panel, i8080 *cpu)
 			cpu->PC = 0;
 			panel->addr = 0;
 			stopTimer();
+			extern dedicatedRAM mainMemory;
+			loadRAM(&mainMemory);
 		}
 		
 		if(panel->contswitchesdown & StopRun)

@@ -1,5 +1,26 @@
 #include"mem.h"
 
+static uint8_t *ROM = NULL;
+static uint16_t ROMlen = 0;
+
+void freeROM()
+{
+	free(ROM);
+	ROM = NULL;
+}
+
+void setROM(uint8_t *pointer, uint16_t len)
+{
+	ROM = pointer;
+	ROMlen = len;
+}
+
+void loadRAM(dedicatedRAM *RAM)
+{
+	for(int i = 0; i < ROMlen; i++)
+		RAM->RAM[i] = ROM[i];
+}
+
 dedicatedRAM newDRAM(int addrSize, int PageSize)
 {
 	int size = 1 << addrSize;

@@ -1,6 +1,7 @@
 #ifndef _MAIN_
 #define _MAIN_
 #include<raylib.h>
+#include<stdio.h>
 #include"io.h"
 #include"8080.h"
 #include"panel.h"
@@ -9,6 +10,7 @@
 const int width = 1789;
 const int height = 634;
 const int switchRadius = 12;
+dedicatedRAM mainMemory;
 
 const char *imagefiles[] = 
 {
