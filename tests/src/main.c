@@ -1,3 +1,4 @@
+#include<unistd.h>
 #include<string.h>
 #include<curses.h>
 #include<errno.h>
@@ -32,7 +33,7 @@ void disp8080(i8080 *cpu, int pos)
 		  10, cpu->tstates);
 	mvprintw(9, pos, "Halted: %d",
 		     cpu->halt);
-	mvprintw(9, pos, "Interrupt Enabled: %d",
+	mvprintw(10, pos, "Interrupt Enabled: %d",
 		     cpu->inte);
 }
 
@@ -80,100 +81,125 @@ int main(int argc, char *argv[])
 	cbreak();
 	noecho();
 
+	int hertz = 60;
+	bool running = false;
 	char in;
 	unsigned addr;
 	char textinput[256];
 	FILE *file = NULL;
 	do{
-		switch(in){
-			case 'h':
-				addr -= 1;
-				addr &= (1 << MEMSIZE) - 1;
-				break;
-			case 'j':
-				addr += 16;
-				addr &= (1 << MEMSIZE) - 1;
-				break;
-			case 'k':
-				addr -= 16;
-				addr &= (1 << MEMSIZE) - 1;
-				break;
-			case 'l':
-				addr += 1;
-				addr &= (1 << MEMSIZE) - 1;
-				break;
-			case 'g':
-				cpu.PC = addr;
-				break;
-			case 's':
-				singleStep(&cpu);
-				break;
-			case 'r':
-				cpu.AF = 0x46;
-				cpu.BC = 0;
-				cpu.DE = 0;
-				cpu.HL = 0;
-				cpu.SP = 0;
-				cpu.PC = 0;
-				cpu.tstates = 0;
-				cpu.halt = 0;
-				cpu.inte = 0;
-				stopTimer();
-				break;
-			case '0': /*Fallthrough*/
-			case '1':
-			case '2':
-			case '3':
-			case '4':
-			case '5':
-			case '6':
-			case '7':
-			case '8':
-			case '9':
-			case 'a':
-			case 'b':
-			case 'c':
-			case 'd':
-			case 'e':
-			case 'f':
-				poke(&cpu, in, addr);
-				break;
-			case 'L':
-				echo();
-				mvprintw(17,0,"Load file: ");
-				hline(' ', 80);
-				getnstr(textinput, 256);
-				file = fopen(textinput, "r");
-				if(!file) mvprintw(17,0,"Error: %s", strerror(errno));
-				else {
-					fread(cpu.RAM->RAM, sizeof(uint8_t), (1 << MEMSIZE), file);
-					fclose(file);
-				}
-				noecho();
-				break;
-			case 'S':
-				echo();
-				mvprintw(17,0,"Save file: ");
-				hline(' ', 80);
-				getnstr(textinput, 256);
-				file = fopen(textinput, "w");
-				if(!file) mvprintw(17,0,"Error: %s", strerror(errno));
-				else{
-					fwrite(cpu.RAM->RAM, sizeof(uint8_t), (1 << MEMSIZE), file);	
-					fclose(file);
-				}
-				noecho();
-				break;
-			case 'i':
-				echo();
-				mvprintw(17,0,"Interrupt number (0-7): ");
-				hline(' ', 80);
-				getnstr(textinput, 256);
-				int inum = atoi(textinput) & 7;
-				noecho();
-				setInterruptPending(0xC7 + 8 * inum);
-			default:
-				break;
+		if(!running){
+			switch(in){
+				case 'h':
+					addr -= 1;
+					addr &= (1 << MEMSIZE) - 1;
+					break;
+				case 'j':
+					addr += 16;
+					addr &= (1 << MEMSIZE) - 1;
+					break;
+				case 'k':
+					addr -= 16;
+					addr &= (1 << MEMSIZE) - 1;
+					break;
+				case 'l':
+					addr += 1;
+					addr &= (1 << MEMSIZE) - 1;
+					break;
+				case 'g':
+					cpu.PC = addr;
+					break;
+				case 's':
+					singleStep(&cpu);
+					break;
+				case 'r':
+					cpu.AF = 0x46;
+					cpu.BC = 0;
+					cpu.DE = 0;
+					cpu.HL = 0;
+					cpu.SP = 0;
+					cpu.PC = 0;
+					cpu.tstates = 0;
+					cpu.halt = 0;
+					cpu.inte = 0;
+					stopTimer();
+					break;
+				case '0': /*Fallthrough*/
+				case '1':
+				case '2':
+				case '3':
+				case '4':
+				case '5':
+				case '6':
+				case '7':
+				case '8':
+				case '9':
+				case 'a':
+				case 'b':
+				case 'c':
+				case 'd':
+				case 'e':
+				case 'f':
+					poke(&cpu, in, addr);
+					break;
+				case 'L':
+					echo();
+					mvprintw(17,0,"Load file: ");
+					hline(' ', 80);
+					getnstr(textinput, 256);
+					file = fopen(textinput, "r");
+					if(!file) mvprintw(17,0,"Error: %s", strerror(errno));
+					else {
+						fread(cpu.RAM->RAM, sizeof(uint8_t), (1 << MEMSIZE), file);
+						fclose(file);
+					}
+					noecho();
+					break;
+				case 'S':
+					echo();
+					mvprintw(17,0,"Save file: ");
+					hline(' ', 80);
+					getnstr(textinput, 256);
+					file = fopen(textinput, "w");
+					if(!file) mvprintw(17,0,"Error: %s", strerror(errno));
+					else{
+						fwrite(cpu.RAM->RAM, sizeof(uint8_t), (1 << MEMSIZE), file);	
+						fclose(file);
+					}
+					noecho();
+					break;
+				case 'i':
+					echo();
+					mvprintw(17,0,"Interrupt number (0-7): ");
+					hline(' ', 80);
+					getnstr(textinput, 256);
+					int inum = atoi(textinput) & 7;
+					noecho();
+					setInterruptPending(0xC7 + 8 * inum);
+					break;
+				case 'R':
+					echo();
+					mvprintw(17,0,"Running freq: ");
+					hline(' ', 80);
+					getnstr(textinput, 256);
+					noecho();
+					hertz = atoi(textinput);
+					running = true;
+					mvprintw(17,0,"Running...");
+					hline(' ', 80);
+					nodelay(win, true);
+					break;
+				default:
+					break;
+			}
+		}else{
+			usleep(1000000 / hertz);
+			singleStep(&cpu);
+			if(in == 's'){
+				running = false;
+				mvhline(17, 0, ' ', 80);
+				nodelay(win, false);
+			}
 		}
 		disp8080(&cpu, 50);
 		dispDRAM(&cpu, addr);
