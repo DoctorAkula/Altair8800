@@ -167,6 +167,7 @@ uint8_t fileState(void)
  *getTimer gets this data byte
  */
 
+#ifndef __MINGW32__
 static timer_t timer;
 static uint8_t timerByte = 0;
 static uint8_t rstOP = 0xC7;
@@ -235,3 +236,20 @@ uint8_t getTimer(void)
 {
 	return timerByte;
 }
+
+#else /*__MINGW32__*/
+
+int stopTimer()
+{
+	return(0);
+}
+
+void setTimer(uint8_t data){}
+
+uint8_t getTimer(void)
+{
+	return 0xFF;
+}
+
+#endif /*__MINGW32__*/
+/*End interrupt timer*/
