@@ -163,6 +163,7 @@ skip:	for(int i = 0; i < slength; i++)
 	SetSoundVolume(sounds[humstart], 1.0f / 32.0f);
 	SetSoundVolume(sounds[Switchon], 1.0f / 2.0f);
 	SetSoundVolume(sounds[Switchoff], 1.0f / 2.0f);
+	termInit();
 	/*Init end*/
 	
 	/*Main Loop Start*/
@@ -181,6 +182,7 @@ skip:	for(int i = 0; i < slength; i++)
 	EndDrawing();
 	}
 	/*Main Loop End*/
+	termQuit();
 	freeDRAM(cpu.RAM);
 	freeROM();
 }

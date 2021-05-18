@@ -1,5 +1,11 @@
+#ifndef __MINGW32__
+#include<curses.h>
+#else
+#include<pdcurses.h>
+#endif /*__MINGW32__*/
 #include<errno.h>
 #include<signal.h>
+#include<stdbool.h>
 #include<string.h>
 #include<stdio.h>
 #include<time.h>
@@ -253,3 +259,60 @@ uint8_t getTimer(void)
 
 #endif /*__MINGW32__*/
 /*End interrupt timer*/
+
+/*TERMINAL
+ *This one is pretty simple, any byte sent to port 3
+ *Will be echoed as an ascii char on the terminal
+ *Reading from port 3 will attempt to get a char
+ *from the keyboard, with bit 7 being set if there is none
+ */
+
+static WINDOW *termwin = NULL;
+
+/*Use this to start the terminal*/
+void termInit()
+{
+	termwin = initscr();
+	raw();
+	noecho();
+	nodelay(termwin, true);
+	scrollok(termwin, true);
+	wclear(termwin);
+	wrefresh(termwin);
+}
+
+/*Use this to stop the terminal*/
+void termQuit()
+{
+	endwin();
+	termwin = NULL;
+}
+
+void termOutputChar(uint8_t data)
+{
+#ifndef __MINGW32__
+	if((data == '\n') &&
+	(getcury(termwin) == getmaxy(termwin))) scroll(termwin);
+#else
+	if(data == '\r'){
+		waddch(termwin, '\n');
+		if(getcury(termwin) == getmaxy(termwin)) scroll(termwin);
+	}
+#endif
+	else if(data == '\b'){
+		waddch(termwin, '\b');
+		waddch(termwin, ' ');
+	}
+	waddch(termwin, data);
+	wrefresh(termwin);
+}
+
+uint8_t termReadChar(void)
+{
+	int data = wgetch(termwin);
+	data = (data == 0x7f) ? '\b' : data;
+	if(data == ERR)
+		return 0x80;
+	else
+		return data;
+}

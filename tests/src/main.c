@@ -203,6 +203,7 @@ int main(int argc, char *argv[])
 		}
 		disp8080(&cpu, 50);
 		dispDRAM(&cpu, addr);
+		wrefresh(win);
 	}while((in = getch()) != 'q');
 	endwin();
 }
