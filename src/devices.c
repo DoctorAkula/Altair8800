@@ -290,16 +290,16 @@ void termQuit()
 
 void termOutputChar(uint8_t data)
 {
-#ifndef __MINGW32__
-	if((data == '\n') &&
-	(getcury(termwin) == getmaxy(termwin))) scroll(termwin);
-#else
-	if(data == '\r'){
-		waddch(termwin, '\n');
-		if(getcury(termwin) == getmaxy(termwin)) scroll(termwin);
-	}
-#endif
-	else if(data == '\b'){
+	if(data == '\n'){	/*Treat newline correctly*/
+		int cury = getcury(termwin) + 1;
+		if(cury == getmaxy(termwin)) scroll(termwin);
+		else wmove(termwin, cury, getcurx(termwin));
+		return;
+	}else if(data == '\r'){	/*Treat carriage return correctly*/
+		int cury = getcury(termwin);
+		wmove(termwin, cury, 0);
+		return;
+	}else if(data == '\b'){
 		waddch(termwin, '\b');
 		waddch(termwin, ' ');
 	}
@@ -313,6 +313,10 @@ uint8_t termReadChar(void)
 	data = (data == 0x7f) ? '\b' : data;
 	if(data == ERR)
 		return 0x80;
+#ifdef	 __MINGW32__	/*PDcurses returns CR instead of LF when enter is pressed*/
+	else if (data == '\r')
+		return '\n';
+#endif /*__MINGW32__*/
 	else
 		return data;
 }
