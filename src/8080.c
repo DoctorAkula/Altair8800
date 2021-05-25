@@ -1313,7 +1313,7 @@ int singleStep(i8080 *cpu)
 		case 0xda:	/*JC*/
 		if(cpu->F & CaryFlag){
 			JMP;
-		}
+		}else cpu->PC += 2;
 		clks = 10;
 		cpu->tstates += clks;
 		break;
