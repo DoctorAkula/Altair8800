@@ -1,6 +1,7 @@
 #ifndef __MINGW32__
 #include<curses.h>
 #else
+#include<windows.h>
 #include<pdcurses.h>
 #endif /*__MINGW32__*/
 #include<errno.h>
@@ -244,17 +245,57 @@ uint8_t getTimer(void)
 }
 
 #else /*__MINGW32__*/
+static HANDLE timer = 0;
+static HANDLE queue = 0;
+static uint8_t timerByte = 0;
+static uint8_t rstOP = 0xC7;
+
+static void timerInterrupt(_In_ PVOID lpParameter,
+			   _In_ BOOLEAN TimerORWaitFired)
+{
+	setInterruptPending(rstOP);
+}
 
 int stopTimer()
 {
-	return(0);
+	int ret = DeleteTimerQueueTimer(queue, timer, NULL);
+	timer = 0;
+	return(ret);
 }
 
-void setTimer(uint8_t data){}
+void setTimer(uint8_t data)
+{
+	static int timercreated = 0;
+
+	rstOP = 0xC7 + 8 * (data & 7);
+
+	if(!timercreated){
+		queue = CreateTimerQueue();
+		if(!queue) fprintf(stderr, 
+			   "Could not create timer queue %d\n", 
+			   GetLastError());
+		else timercreated = 1;
+	}
+
+	DeleteTimerQueueTimer(queue, timer, NULL);
+	timer = 0;
+	if(!(data & 0xF8)){
+		BOOL ret = CreateTimerQueueTimer(
+				&timer,
+				queue,
+				timerInterrupt,
+				NULL,
+				0,
+				1000 / (data >> 3),
+				0);
+		if(!ret) fprintf(stderr, "timer start failed: %d\n", GetLastError());
+	}
+	timerByte = data;
+}
 
 uint8_t getTimer(void)
 {
-	return 0xFF;
+	return timerByte;
 }
 
 #endif /*__MINGW32__*/
