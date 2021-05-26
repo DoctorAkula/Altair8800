@@ -1,0 +1,32 @@
+		;Simple TTY test program
+		;Store chars in buffer pointed to by HL
+		;Read them out using DE when CR or LF is typed
+		;DoctorAkula
+TTY EQU 3
+
+MAIN:		LXI H, BUFFERSTART
+LOOP:		IN TTY
+		ORA A
+		JM LOOP		;Bit 7 is high if no char is ready
+		CPI 0Ah		;Line Feed
+		JZ FLUSHBUF	;Read if enter was pressed
+		MOV M, A	;Store in buffer postincrement
+		INX H
+		JMP LOOP
+FLUSHBUF:	LXI D, BUFFERSTART	;Read from start of buffer
+		JMP COMP	;Check if buffer is empty first
+FLOOP:		LDAX D		
+		OUT TTY
+		INX D		;Read from buffer with post increment
+COMP:		MOV A, E	;Perform comparison between HL and DE
+		CMP L
+		JNZ FLOOP
+		MOV A, D
+		CMP H
+		JNZ FLOOP
+		MVI A, 0Ah	;Line feed
+		OUT TTY
+		MVI A, 0Dh	;Carriage Return
+		OUT TTY
+		JMP MAIN
+BUFFERSTART:

@@ -1,0 +1,65 @@
+		;Timer testing
+		;ISR prints HL in decimal, and increments
+		;DoctorAkula
+TTY EQU 3
+TIME EQU 2
+
+MAIN:		LXI H, 0
+		LXI SP, 0
+		MVI A, 0Fh	;00001 111 = 1 hertz, RST 38h
+		EI
+		OUT TIME
+		HLT
+
+RST38H:	ORG 38h			;Interrupt routine
+		PUSH H		;Save HL
+		LXI D, -10000	;Print ten thousands place
+		MVI A, '0' - 1
+TENTHOU:	INR A
+		DAD D
+		JC TENTHOU
+		LXI D, 10000
+		DAD D
+		OUT TTY
+
+		LXI D, -1000	;Print thousands place
+		MVI A, '0' - 1
+THOU:		INR A
+		DAD D
+		JC THOU
+		LXI D, 1000
+		DAD D
+		OUT TTY
+
+		LXI D, -100	;Print hundreths place
+		MVI A, '0' - 1
+HUN:		INR A
+		DAD D
+		JC HUN
+		LXI D, 100
+		DAD D
+		OUT TTY
+
+		LXI D, -10	;Print tenths place
+		MVI A, '0' - 1
+TEN:		INR A
+		DAD D
+		JC TEN
+		LXI D, 10
+		DAD D
+		OUT TTY
+
+		MVI A, '0'	;Print ones place
+		ADD L
+		OUT TTY
+
+		POP H		;Restore HL
+		INX H		;Increment counter
+
+		MVI A, 0Ah	;Carriage return, Line feed
+		OUT TTY
+		MVI A, 0Dh
+		OUT TTY
+
+		EI		;Return from interrupt
+		RET

@@ -1,0 +1,110 @@
+		;File IO test prog
+		;DoctorAkula
+
+;Filectl ops
+OPN	EQU 0
+CLS	EQU 1
+SKS	EQU 2
+SKC	EQU 3
+SKE	EQU 4
+SPA	EQU 5
+SMA	EQU 6
+SEA	EQU 7
+
+;Port numbers
+FILEIO  EQU 0
+FILECTL EQU 1
+TTY	EQU 3
+
+MAIN:		MVI A, SPA	;Set path
+		OUT FILECTL
+		MVI A, PATH & 255
+		OUT FILECTL
+		MVI A, PATH >> 8
+		OUT FILECTL
+
+		MVI A, SMA	;Set mode
+		OUT FILECTL
+		MVI A, MODE & 255
+		OUT FILECTL
+		MVI A, MODE >> 8
+		OUT FILECTL
+
+		MVI A, SEA	;Set error
+		OUT FILECTL
+		MVI A, ERROR & 255
+		OUT FILECTL
+		MVI A, ERROR >> 8
+		OUT FILECTL
+
+PATHIN:		LXI H, PATH	;Read in file path
+INFLOOP:	IN TTY
+		ORA A
+		JM INFLOOP	;Bit 7 is high if no char is ready
+		OUT TTY
+		CPI 0Ah		;Line Feed
+		JZ OPEN		;Open file once path name is entered
+		MOV M, A	;Store in buffer postincrement
+		INX H
+		JMP INFLOOP
+
+OPEN:		MVI A, 0Dh	;Carriage return
+		OUT TTY
+		XRA A		;Null terminate path
+		MOV M, A
+		MVI A, OPN	;Open the file
+		OUT FILECTL
+
+		LDA ERROR	;Check if there is an error string
+		ORA A
+		JZ READ
+
+		LXI H, ERRSTR	;Print error string
+		JMP ERRCOMP
+ERRLOOP:	INX H
+		OUT TTY
+ERRCOMP:	MOV A, M
+		ORA A
+		JNZ ERRLOOP
+		JMP WRITEBUF
+
+READ:		LXI H, BUFFER
+READLOOP:	IN FILEIO	;Start writing file to buffer
+		MOV M, A
+		INX H
+		IN FILECTL	;Bit 7 set when EOF
+		ORA A
+		JP READLOOP
+
+		XRA A		;Null terminate string
+		MOV M, A
+
+WRITEBUF:	LXI H, BUFFER	;Print error / file buffer
+		JMP BUFCOMP
+BUFLOOP:	INX H
+		OUT TTY
+		CPI 0Ah		;Check if newline
+		JNZ BUFCOMP
+		MVI A, 0Dh	;Print CR after newline
+		OUT TTY
+BUFCOMP:	MOV A, M
+		ORA A
+		JNZ BUFLOOP
+
+		MVI A, CLS	;End of program
+		OUT FILECTL
+		MVI A, 0Dh	;CRLF at end of prog
+		OUT TTY
+		MVI A, 0Ah
+		OUT TTY
+		XRA A
+		STA ERROR	;Reset first char of buffer to zero
+		JMP PATHIN
+
+ERRSTR:	DB	"Error: ", 0
+MODE:	DB	"r", 0
+	ORG 100h
+PATH:	DB	0
+	ORG 200h
+BUFFER:				;Acts as error buffer and file buffer
+ERROR:	DB	0

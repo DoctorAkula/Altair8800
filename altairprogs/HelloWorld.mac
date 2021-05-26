@@ -1,0 +1,14 @@
+		;Print Hello, World!
+		;DoctorAkula
+
+TTY EQU 3
+
+		LXI H, STR	;Load HL with STR address
+		MOV A, M	;Load first char into A
+COMP:		OUT TTY		;Output char
+		INX H		;Increment HL
+		MOV A, M
+		ORA A		;Update flags
+		JNZ COMP	;Loop if not zero
+		HLT
+STR:	DB	"Hello, World!", 0

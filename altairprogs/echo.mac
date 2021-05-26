@@ -1,0 +1,14 @@
+		;echo test prog
+		;DoctorAkula
+
+TTY EQU 3
+		
+LOOP:		IN TTY
+		ORA A		;Update flags
+		JM LOOP		;Loop if bit 7 is set
+		OUT TTY		;Output to TTY if char received
+		CPI 0Ah		;Check if newline
+		JNZ LOOP
+		MVI A, 0Dh	;Output CR if newline
+		OUT TTY
+		JMP LOOP
