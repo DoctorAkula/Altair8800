@@ -1152,10 +1152,11 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0xc4:	/*CNZ A16*/
-		cpu->PC += 2;
-		if(cpu->F & ZeroFlag) clks = 11;
-		else{
-			PUSH(cpu->PC);
+		if(cpu->F & ZeroFlag){
+			clks = 11;
+			cpu->PC += 2;
+		}else{
+			PUSH(cpu->PC + 2);
 			JMP;
 			clks = 17;
 		}
@@ -1208,10 +1209,11 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0xcc:	/*CZ A16*/
-		cpu->PC += 2;
-		if(!(cpu->F & ZeroFlag)) clks = 11;
-		else{
-			PUSH(cpu->PC);
+		if(!(cpu->F & ZeroFlag)){
+			clks = 11;
+			cpu->PC += 2;
+		}else{
+			PUSH(cpu->PC + 2);
 			JMP;
 			clks = 17;
 		}
@@ -1267,10 +1269,11 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0xd4:	/*CNC A16*/
-		cpu->PC += 2;
-		if(cpu->F & CaryFlag) clks = 11;
-		else{
-			PUSH(cpu->PC);
+		if(cpu->F & CaryFlag){
+			clks = 11;
+			cpu->PC += 2;
+		}else{
+			PUSH(cpu->PC + 2);
 			JMP;
 			clks = 17;
 		}
@@ -1324,9 +1327,11 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0xdc:	/*CC*/
-		if(!(cpu->F & CaryFlag)) clks = 11;
-		else{
-			PUSH(cpu->PC);
+		if(!(cpu->F & CaryFlag)){
+			clks = 11;
+			cpu->PC += 2;
+		}else{
+			PUSH(cpu->PC + 2);
 			JMP;
 			clks = 17;
 		}
@@ -1383,10 +1388,11 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0xe4:	/*CPO A16*/
-		cpu->PC += 2;
-		if(cpu->F & PariFlag) clks = 11;
-		else{
-			PUSH(cpu->PC);
+		if(cpu->F & PariFlag){
+			clks = 11;
+			cpu->PC += 2;
+		}else{
+			PUSH(cpu->PC + 2);
 			JMP;
 			clks = 17;
 		}
@@ -1440,10 +1446,11 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0xec:	/*CPE A16*/
-		cpu->PC += 2;
-		if(!(cpu->F & PariFlag)) clks = 11;
-		else{
-			PUSH(cpu->PC);
+		if(!(cpu->F & PariFlag)){
+			clks = 11;
+			cpu->PC += 2;
+		}else{
+			PUSH(cpu->PC + 2);
 			JMP;
 			clks = 17;
 		}
@@ -1494,10 +1501,11 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0xf4:	/*CP A16*/
-		cpu->PC += 2;
-		if(cpu->F & SignFlag) clks = 11;
-		else{
-			PUSH(cpu->PC);
+		if(cpu->F & SignFlag){
+			clks = 11;
+			cpu->PC += 2;
+		}else{
+			PUSH(cpu->PC + 2);
 			JMP;
 			clks = 17;
 		}
@@ -1548,10 +1556,11 @@ int singleStep(i8080 *cpu)
 		cpu->tstates += clks;
 		break;
 		case 0xfc:	/*CM A16*/
-		cpu->PC += 2;
-		if(!(cpu->F & SignFlag)) clks = 11;
-		else{
-			PUSH(cpu->PC);
+		if(!(cpu->F & SignFlag)){
+			clks = 11;
+			cpu->PC += 2;
+		}else{
+			PUSH(cpu->PC + 2);
 			JMP;
 			clks = 17;
 		}
