@@ -175,9 +175,10 @@ uint8_t fileState(void)
  */
 
 #ifndef __MINGW32__
-static timer_t timer;
+static timer_t timer = 0;
 static uint8_t timerByte = 0;
 static uint8_t rstOP = 0xC7;
+static int timercreated = 0;
 
 static void timerInterrupt(int sig)
 {
@@ -186,6 +187,7 @@ static void timerInterrupt(int sig)
 
 int stopTimer()
 {
+	if(!timercreated) return -1;
 	struct itimerspec freq = {
 		(struct timespec){
 			0, 0
@@ -199,7 +201,6 @@ int stopTimer()
 
 void setTimer(uint8_t data)
 {
-	static int timercreated = 0;
 
 	rstOP = 0xC7 + 8 * (data & 7);
 
