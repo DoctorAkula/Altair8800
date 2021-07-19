@@ -1,0 +1,36 @@
+main:	MVI A, 1		;MSB of copied loop address
+	LXI SP, 0		;Set top of stack
+loop:	LXI B, stop - start	;Size of loop routine
+	MOV D, A		;DE is where the loop routine is written
+	MVI E, 0
+	LXI H, start		;Point to the initial copy of the loop routine
+	PUSH PSW
+	CALL fldir		;Copy the routine
+	POP PSW
+	MVI E, stop-start-4	;DE points to MSB of JNZ address
+	STAX D			;Store correct loop address for the current routine
+	RAL			;Rotate A
+	MVI E, stop-start-1	;DE points to MSB of JMP address
+	STAX D			;Write address of next loop to end of current routine
+	CPI 1			;Do not loop if A = 1
+	JNZ loop
+	STAX D			;Last copy of loop routine will jump to the first
+	JMP 100h
+
+fldir:	MOV A, M		;8080 implementation of LDIR
+	STAX D			;BC = size, DE = destination, HL = source
+	INX H
+	INX D
+	DCX B
+	MOV A, B		;Check if BC = 0
+	ORA C
+	JNZ fldir		;Loop if not zero
+	RET
+
+start:	LXI B, 1BF3h		;Loop routine
+	DCX B
+	MOV A, B
+	ORA C
+	JNZ 0003h		;Jump to DCX B and not LXI B
+	JMP 0000h		;Jump to next loop
+stop:
