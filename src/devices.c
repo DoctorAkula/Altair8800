@@ -206,9 +206,8 @@ void setTimer(uint8_t data)
 
 	int ret;
 	if(!timercreated){
-		struct sigevent sevp =
-		{
-			SIGEV_SIGNAL,
+		struct sigevent sevp = {
+			{SIGEV_SIGNAL},	/*Fixes missing braces warning*/
 			SIGUSR1,
 		};
 		ret = timer_create(CLOCK_MONOTONIC, &sevp, &timer);
@@ -273,7 +272,7 @@ void setTimer(uint8_t data)
 	if(!timercreated){
 		queue = CreateTimerQueue();
 		if(!queue) fprintf(stderr, 
-			   "Could not create timer queue %d\n", 
+			   "Could not create timer queue %ld\n",
 			   GetLastError());
 		else timercreated = 1;
 	}
@@ -289,7 +288,7 @@ void setTimer(uint8_t data)
 				0,
 				1000 / (data >> 3),
 				0);
-		if(!ret) fprintf(stderr, "timer start failed: %d\n", GetLastError());
+		if(!ret) fprintf(stderr, "timer start failed: %ld\n", GetLastError());
 	}
 	timerByte = data;
 }

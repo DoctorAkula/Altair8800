@@ -30,7 +30,7 @@ void drawSwitchesAndLights(FrontPanel panel, Texture2D *textures)
 		DrawTexture(textures[(panel.stat & (1 << i)) ? lighton:lightoff], 206 + (i * 66.5), 85, WHITE);
 	/*Lower status lights*/
 	for(int i = 0; i < 2; i++)
-		DrawTexture(textures[(panel.stat & (1 << i+10)) ? lighton:lightoff], 206 + (i * 70), 198, WHITE);
+		DrawTexture(textures[(panel.stat & (1 << (i + 10))) ? lighton:lightoff], 206 + (i * 70), 198, WHITE);
 	/*Data/Addr Switches And lights*/
 	for(int i = 0; i < 16; i++)
 	{
